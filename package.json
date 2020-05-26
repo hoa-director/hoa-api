@@ -6,15 +6,17 @@
   "author": "Dexter St Pierre <dexter.stpierre.dev@gmail.com>",
   "scripts": {
     "build-dev": "npm run clean && npm run build-server",
-    "build-server-watch": "tsc-watch -p tsconfig.server.json --onSuccess \"npm run copy-static-assets\"",
-    "build-server": "tsc -p tsconfig.server.json",
+    "build-server-watch": "tsc-watch --project tsconfig.server.json --onSuccess \"npm run copy-static-assets\"",
+    "build-server": "tsc --project tsconfig.server.json",
     "build": "npm run clean && npm run build-server && npm run copy-static-assets",
     "clean": "rm -fR dist/",
     "copy-static-assets": "npx ts-node copyStaticAssets.ts",
     "dev": "npm run build-dev && npm run watch",
-    "lint-server": "npx tslint -c tslint.json -p tsconfig.server.json",
-    "serve-watch": "npx nodemon dist/server.js",
-    "start": "node dist/server.js"
+    "lint-server": "tslint -c tslint.json -p tsconfig.server.json",
+    "serve-watch": "nodemon dist/server.js",
+    "serve": "node dist/server.js",
+    "start": "npm run serve",
+    "watch": "concurrently --kill-others --prefix \"[{name}]\" --names \"TypeScript,Node,Angular\" \"npm:serve-watch\" \"npm:build-server-watch\""
   },
   "main": "dist/server.js",
   "dependencies": {

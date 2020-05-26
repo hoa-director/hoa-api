@@ -40,45 +40,49 @@ export class UserRouter {
       where: {
         email: req.body.email,
       },
-    }).then(user => {
-      if(!user) {
-        return res.status(401).json({message: "Auth Failed"});
-      }
-      // returns a bool true/false for pass/fail
-      fetchedUser = user;
-      return user.comparePassword(req.body.password);
     })
-    .then(result => {
-      if(!result) {
-        return res.status(401).json({message: "Auth Failed"});
-      }
+      .then((user) => {
+        if (!user) {
+          return res.status(401).json({ message: "Auth Failed" });
+        }
+        // returns a bool true/false for pass/fail
+        fetchedUser = user;
+        return user.comparePassword(req.body.password);
+      })
+      .then((result) => {
+        if (!result) {
+          return res.status(401).json({ message: "Auth Failed" });
+        }
 
-      // if (fetchedUser.role === roles.ADMIN) {
-      //   return Association.findAll({
-      //     attributes: ['id', 'name'],
-      //   })
-      //     .then((associations) => {
-      //       req.session.associationId = associations[0].id;
-      //     })
-      //     .catch((error) => {
-      //       bugsnagClient.notify(error);
-      //       res.sendStatus(500);
-      //     });
-      //   }
+        // if (fetchedUser.role === roles.ADMIN) {
+        //   return Association.findAll({
+        //     attributes: ['id', 'name'],
+        //   })
+        //     .then((associations) => {
+        //       req.session.associationId = associations[0].id;
+        //     })
+        //     .catch((error) => {
+        //       bugsnagClient.notify(error);
+        //       res.sendStatus(500);
+        //     });
+        //   }
 
-      // create the token to send to the client
-      const token = jwt.sign({email: fetchedUser.email, userId: fetchedUser.id}, process.env.SECRET, {expiresIn: "1h"});
-      console.log(token);
-      res.status(200)
-      .json({
-        token: token,
-        user: fetchedUser
+        // create the token to send to the client
+        const token = jwt.sign(
+          { email: fetchedUser.email, userId: fetchedUser.id },
+          process.env.SECRET,
+          { expiresIn: "1h" }
+        );
+        console.log(token);
+        res.status(200).json({
+          token: token,
+          user: fetchedUser,
+          expiresIn: "3600" // 1h in seconds, sent back to the client
+        });
+      })
+      .catch((err) => {
+        return res.status(401).json({ message: "Auth Failed" });
       });
-
-    })
-    .catch(err => {
-      return res.status(401).json({message: "Auth Failed"});
-    });
 
     // if (req.user.role === roles.ADMIN) {
     //   return Association.findAll({
@@ -132,26 +136,26 @@ export class UserRouter {
   }
 
   private getUserAssociations(req: Request, res: Response, next: NextFunction) {
-    var userId = req.params.id
-    console.log('user id get user associations is ' + userId);
+    var userId = req.params.id;
+    console.log("user id get user associations is " + userId);
     User.findOne({
       where: {
         id: userId,
       },
-    }).then(user => {
+    }).then((user) => {
       user
-      .getAvailableAssociations()
-      .then((associations) => {
-        res.send({
-          associations
-          // currentAssociation: req.session.associationId,
+        .getAvailableAssociations()
+        .then((associations) => {
+          res.send({
+            associations,
+            // currentAssociation: req.session.associationId,
+          });
+        })
+        .catch((error) => {
+          bugsnagClient.notify(error);
+          res.sendStatus(500);
         });
-      })
-      .catch((error) => {
-        bugsnagClient.notify(error);
-        res.sendStatus(500);
-      });
-    })
+    });
   }
 
   private setCurrentAssociation(
@@ -262,10 +266,7 @@ export class UserRouter {
     //   passport.authenticate("local", passportRedirect),
     //   this.login
     // );
-    this.router.post(
-      "/login/",
-      this.login
-    );
+    this.router.post("/login/", this.login);
     this.router.get("/logout", this.logout);
     this.router.post("/register/", this.register);
     this.router.get("/forgotten/", this.forgotten);
