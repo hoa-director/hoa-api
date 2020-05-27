@@ -56,7 +56,6 @@ export class ApiRouter {
   }
   private getRules = (req: Request, res: Response, next: NextFunction) => {
     // TODO: remove the hard coded 2
-    console.log(req.session.associationId);
     const associationId = req.session.associationId || 2;
     Association.getRuleListsByAssociationId(associationId)
       .then((ruleLists) => {
