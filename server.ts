@@ -1,4 +1,3 @@
-// import * as dotenv from 'dotenv';
 require('dotenv').config();
 import * as http from 'http';
 import { connection } from './config/database';
@@ -24,5 +23,5 @@ function normalizePort(val: number | string): number | string | false {
 }
 
 function onListening(): void {
-  console.log(`listening on Port ${port}`);
+  console.log(`listening on port ${port}`);
 }
