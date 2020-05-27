@@ -36,7 +36,7 @@ export class DocumentsRouter {
   }
 
   private viewDocument = (req: Request, res: Response, next: NextFunction) => {
-    const associationId = req.session.associationId || 1;
+    const associationId = req.session.associationId || 2; // TODO: remove hard coded association id
     const documentId = req.params.id;
     Document.getDocumentByAssociationAndId(associationId, documentId)
       .then((document: any) => {
