@@ -1,5 +1,5 @@
-import * as dotenv from 'dotenv';
-dotenv.config();
+// import * as dotenv from 'dotenv';
+require('dotenv').config();
 import * as http from 'http';
 import { connection } from './config/database';
 
@@ -24,6 +24,5 @@ function normalizePort(val: number | string): number | string | false {
 }
 
 function onListening(): void {
-  console.log(`listening on port ${port}`);
-  console.log(`process environment ${JSON.stringify(process.env.NODE_ENV, null, 2)}`);
+  console.log(`listening on Port ${port}`);
 }

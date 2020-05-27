@@ -1,5 +1,4 @@
-import * as dotenv from 'dotenv';
-dotenv.config();
+require('dotenv').config();
 import { EmailerFactory } from '../factories/emailer-factory';
 import { Association } from '../schema/schemas';
 
