@@ -43,7 +43,7 @@ export class UserRouter {
     })
       .then((user) => {
         if (!user) {
-          return res.status(401).json({ message: "Auth Failed" });
+          return res.status(401).json({ message: "Auth Failed - Status 1" });
         }
         // returns a bool true/false for pass/fail
         fetchedUser = user;
@@ -51,7 +51,7 @@ export class UserRouter {
       })
       .then((result) => {
         if (!result) {
-          return res.status(401).json({ message: "Auth Failed" });
+          return res.status(401).json({ message: "Auth Failed - Status 2" });
         }
 
         // if (fetchedUser.role === roles.ADMIN) {
@@ -81,7 +81,7 @@ export class UserRouter {
         });
       })
       .catch((err) => {
-        return res.status(401).json({ message: "Auth Failed" });
+        return res.status(401).json({ message: "Auth Failed - Status 3" });
       });
 
     // if (req.user.role === roles.ADMIN) {
