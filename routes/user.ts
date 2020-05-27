@@ -83,6 +83,7 @@ export class UserRouter {
         });
       })
       .catch((err) => {
+        console.log(err);
         return res.status(401).json({ message: "Auth Failed - Status 3" });
       });
 
