@@ -33,7 +33,7 @@ class DatabaseConnection {
   sequelize: Sequelize;
 
   constructor() {
-    this.sequelize = new Sequelize(process.env.DATABASE_URL);
+    this.sequelize = new Sequelize(process.env.JAWSDB_URL);
   }
 
   testConnection() {
