@@ -47,6 +47,7 @@ export class UserRouter {
         }
         // returns a bool true/false for pass/fail
         fetchedUser = user;
+        console.log("the fetched user email: " + fetchedUser.email);
         return user.comparePassword(req.body.password);
       })
       .then((result) => {
@@ -73,6 +74,7 @@ export class UserRouter {
           process.env.SECRET,
           { expiresIn: "1h" }
         );
+        console.log("the user token is :" + token);
         console.log(token);
         res.status(200).json({
           token: token,
