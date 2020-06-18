@@ -34,15 +34,14 @@ export class DocumentsRouter {
         res.sendStatus(500);
       });
   }
-
+  
   private viewDocument = (req: Request, res: Response, next: NextFunction) => {
     const associationId = req.session.associationId || 2; // TODO: remove hard coded association id
     const documentId = req.params.id;
     Document.getDocumentByAssociationAndId(associationId, documentId)
       .then((document: any) => {
-        const data = fs.readFileSync(
-          path.join(__dirname, '..', '..', document.path),
-        );
+        const documentPath = path.join(__dirname, '..', '..', document.path);
+        const data = fs.readFileSync(documentPath);
         res.contentType('application/pdf');
         res.header('Content-Disposition', 'inline; name=' + document.name);
         res.send(data);
