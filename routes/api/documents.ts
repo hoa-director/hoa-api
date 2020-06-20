@@ -23,7 +23,8 @@ export class DocumentsRouter {
 
   private getDocumnets = (req: Request, res: Response, next: NextFunction) => {
     // TODO: remove hard coded association id
-    const associationId = req.session.associationId  || 2;
+    // const associationId = req.session.associationId  || 2;
+    const associationId = 2;
     Document.getDocumentsByAssociation(associationId)
       .then((documents) => {
         res.send(documents);
