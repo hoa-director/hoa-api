@@ -42,9 +42,9 @@ export class DocumentsRouter {
       .then((document: any) => {
         const documentPath = path.join(__dirname, '..', '..', document.path);
         const data = fs.readFileSync(documentPath);
-        res.contentType('application/pdf');
-        res.setHeader('Content-Disposition', 'inline; name=' + document.name);
-        res.send(data);
+        // res.contentType('application/pdf');
+        // res.setHeader('Content-Disposition', 'inline; name=' + document.name);
+        res.send(data).json({ message: "View document route hit" });
       })
       .catch((error) => {
         console.log(error);
