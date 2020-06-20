@@ -31,7 +31,7 @@ class App {
 
   private middleware(): void {
     this.express.use((req: Request, res: Response, next: NextFunction) => {
-      res.setHeader("Access-Control-Allow-Origin", "*");
+      res.setHeader("Access-Control-Allow-Origin", "http://hoadirector.com" );
       res.setHeader(
         "Access-Control-Allow-Headers",
         "Origin, X-Requested-With, Content-Type, Accept, Authorization"
