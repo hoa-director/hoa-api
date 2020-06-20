@@ -73,7 +73,6 @@ class App {
 
   private routes(): void {
     this.express.use("/api/", checkAuth, apiRoutes);
-    // this.express.use("/api/", apiRoutes);
     this.express.use("/user/", userRoutes);
     this.express.use("/users/", userRoutes);
     this.express.use("/*", indexRoutes);
