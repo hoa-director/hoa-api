@@ -1,5 +1,7 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { createTransport, Transporter } from 'nodemailer';
+import * as fs from 'fs';
+import * as path from 'path';
 
 import { Emailer } from '../classes/emailer';
 import {
@@ -11,11 +13,7 @@ import {
 } from '../schema/schemas';
 import { Unit } from '../schema/unit';
 
-import { DocumentsRouter } from './api/documents';
-
 import { bugsnagClient } from '../config/bugsnag';
-
-const documentsRoutes = new DocumentsRouter();
 
 export class ApiRouter {
   router: Router;
@@ -26,7 +24,8 @@ export class ApiRouter {
   }
 
   init() {
-    this.router.use(documentsRoutes.routePrefix, documentsRoutes.router);
+    this.router.get('/documents', this.getDocuments);
+    this.router.get('/documents/:id', this.viewDocument);
     this.router.get('/directory', this.getDirectory);
     this.router.get('/rules', this.getRules);
     this.router.get('/units', this.getUnits);
@@ -317,6 +316,39 @@ export class ApiRouter {
         res.send({ units: association.units });
       })
       .catch((error) => {
+        bugsnagClient.notify(error);
+        res.sendStatus(500);
+      });
+  }
+
+  private getDocuments = (req: Request, res: Response, next: NextFunction) => {
+    // TODO: remove hard coded association id
+    // const associationId = req.session.associationId  || 2;
+    const associationId = 2;
+    Document.getDocumentsByAssociation(associationId)
+      .then((documents) => {
+        res.send(documents);
+      })
+      .catch((error) => {
+        console.log(error);
+        bugsnagClient.notify(error);
+        res.sendStatus(500);
+      });
+  }
+
+  private viewDocument = (req: Request, res: Response, next: NextFunction) => {
+    const associationId = req.session.associationId || 2; // TODO: remove hard coded association id
+    const documentId = req.params.id;
+    Document.getDocumentByAssociationAndId(associationId, documentId)
+      .then((document: any) => {
+        const documentPath = path.join(__dirname, '..', document.path);
+        const data = fs.readFileSync(documentPath);
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'inline; name=' + document.name);
+        res.send(data);
+      })
+      .catch((error) => {
+        console.log(error);
         bugsnagClient.notify(error);
         res.sendStatus(500);
       });
