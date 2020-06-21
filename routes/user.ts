@@ -7,7 +7,7 @@ import { EmailerFactory } from "../factories/emailer-factory";
 import { Association, ForgottenPasswordToken } from "../schema/schemas";
 import User, { UserSchema } from "../schema/user";
 
-import { bugsnagClient } from "../config/bugsnag";
+// import { bugsnagClient } from "../config/bugsnag";
 import Mail = require("nodemailer/lib/mailer");
 
 import { SendMailOptions } from "nodemailer";
@@ -127,7 +127,7 @@ export class UserRouter {
         res.send(newUser);
       })
       .catch((error) => {
-        bugsnagClient.notify(error);
+        // bugsnagClient.notify(error);
         res.sendStatus(500);
       });
   }
@@ -149,7 +149,7 @@ export class UserRouter {
           });
         })
         .catch((error) => {
-          bugsnagClient.notify(error);
+          // bugsnagClient.notify(error);
           res.sendStatus(500);
         });
     });
@@ -176,7 +176,7 @@ export class UserRouter {
         });
       })
       .catch((error) => {
-        bugsnagClient.notify(error);
+        // bugsnagClient.notify(error);
         res.sendStatus(500);
       });
   }
@@ -219,7 +219,7 @@ export class UserRouter {
         res.send({ sucess: true });
       })
       .catch((error) => {
-        bugsnagClient.notify(error);
+        // bugsnagClient.notify(error);
         res.status(500).send({ success: false });
       });
   }
@@ -252,7 +252,7 @@ export class UserRouter {
         res.send({ sucess: true });
       })
       .catch((error) => {
-        bugsnagClient.notify(error);
+        // bugsnagClient.notify(error);
         res.status(500).send({ success: false });
       });
   }

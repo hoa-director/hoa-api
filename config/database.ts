@@ -14,8 +14,7 @@ const connectionOptions: Options = {
     underscored: true,
     paranoid: true,
   },
-  logging,
-  operatorsAliases: false,
+  logging
 };
 
 class DatabaseConnection {

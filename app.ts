@@ -5,7 +5,7 @@ import * as express from "express";
 import { NextFunction, Request, Response } from "express";
 import * as session from 'express-session';
 import * as path from "path";
-import { bugsnagClient } from "./config/bugsnag";
+// import { bugsnagClient } from "./config/bugsnag";
 import passport from "./config/passport";
 import indexRoutes from "./routes";
 import apiRoutes from "./routes/api";
@@ -13,7 +13,7 @@ import userRoutes from "./routes/user";
 
 const checkAuth = require("./middleware/check-auth");
 
-const bugsnagExpress = bugsnagClient.getPlugin("express");
+// const bugsnagExpress = bugsnagClient.getPlugin("express");
 
 const serverSessionSecret = process.env.SESSION_SECRET;
 
@@ -30,6 +30,7 @@ class App {
   }
 
   private middleware(): void {
+    // this.express.use(bugsnagExpress.requestHandler);
     this.express.use((req: Request, res: Response, next: NextFunction) => {
       res.setHeader("Access-Control-Allow-Origin", "*" );
       res.setHeader(
@@ -42,7 +43,6 @@ class App {
       );
       next();
     });
-    this.express.use(bugsnagExpress.requestHandler);
     this.express.use(bodyParser.urlencoded({ extended: true }));
     this.express.use(bodyParser.json());
     this.express.use(
@@ -53,7 +53,7 @@ class App {
   }
 
   private errorHandlers(): void {
-    this.express.use(bugsnagExpress.errorHandler);
+    // this.express.use(bugsnagExpress.errorHandler);
   }
 
   // private staticContent(): void {

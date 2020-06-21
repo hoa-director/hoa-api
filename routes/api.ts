@@ -13,7 +13,7 @@ import {
 } from '../schema/schemas';
 import { Unit } from '../schema/unit';
 
-import { bugsnagClient } from '../config/bugsnag';
+// import { bugsnagClient } from '../config/bugsnag';
 
 export class ApiRouter {
   router: Router;
@@ -49,7 +49,7 @@ export class ApiRouter {
         res.send(directory);
       })
       .catch((error) => {
-        bugsnagClient.notify(error);
+        // bugsnagClient.notify(error);
         res.sendStatus(500);
       });
   }
@@ -61,7 +61,7 @@ export class ApiRouter {
         res.send(ruleLists);
       })
       .catch((error) => {
-        bugsnagClient.notify(error);
+        // bugsnagClient.notify(error);
         res.sendStatus(500);
       });
   }
@@ -118,7 +118,7 @@ export class ApiRouter {
         );
       })
       .catch((error) => {
-        bugsnagClient.notify(error);
+        // bugsnagClient.notify(error);
         res.sendStatus(500);
       });
   }
@@ -141,7 +141,7 @@ export class ApiRouter {
         res.status(200).send({});
       })
       .catch((error) => {
-        bugsnagClient.notify(error);
+        // bugsnagClient.notify(error);
         if (error.id === 100) {
           res.status(400).send({ message: error.message });
           return;
@@ -164,7 +164,7 @@ export class ApiRouter {
           res.send({ objections });
         })
         .catch((error) => {
-          bugsnagClient.notify(error);
+          // bugsnagClient.notify(error);
           res.sendStatus(500);
         });
     });
@@ -185,7 +185,7 @@ export class ApiRouter {
           res.send({ objections });
         })
         .catch((error) => {
-          bugsnagClient.notify(error);
+          // bugsnagClient.notify(error);
           res.sendStatus(500);
         });
     });
@@ -206,7 +206,7 @@ export class ApiRouter {
           res.send({ objections });
         })
         .catch((error) => {
-          bugsnagClient.notify(error);
+          // bugsnagClient.notify(error);
           res.sendStatus(500);
         });
     });
@@ -231,7 +231,7 @@ export class ApiRouter {
           res.send({ objections });
         })
         .catch((error) => {
-          bugsnagClient.notify(error);
+          // bugsnagClient.notify(error);
           res.sendStatus(500);
         });
     });
@@ -247,9 +247,9 @@ export class ApiRouter {
     const associationId: number = parseInt(req.session.associationId);
     const objectionId: number = parseInt(req.params.id);
     Objection.findByPk(objectionId, {
-      where: {
-        associationId,
-      },
+      // where: {
+      //   associationId,
+      // },
       attributes: ['comment', 'closedAt', 'associationId', 'id'],
       include: [
         {
@@ -289,7 +289,7 @@ export class ApiRouter {
         res.send({ objection, canVote, results });
       })
       .catch((error) => {
-        bugsnagClient.notify(error);
+        // bugsnagClient.notify(error);
         res.status(500).send({ error });
       });
   }
@@ -316,7 +316,7 @@ export class ApiRouter {
         res.send({ units: association.units });
       })
       .catch((error) => {
-        bugsnagClient.notify(error);
+        // bugsnagClient.notify(error);
         res.sendStatus(500);
       });
   }
@@ -331,7 +331,7 @@ export class ApiRouter {
       })
       .catch((error) => {
         console.log(error);
-        bugsnagClient.notify(error);
+        // bugsnagClient.notify(error);
         res.sendStatus(500);
       });
   }
@@ -349,7 +349,7 @@ export class ApiRouter {
       })
       .catch((error) => {
         console.log(error);
-        bugsnagClient.notify(error);
+        // bugsnagClient.notify(error);
         res.sendStatus(500);
       });
   }
