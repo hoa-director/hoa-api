@@ -1,4 +1,4 @@
-import * as Sequelize from 'sequelize';
+import * as Sequelize from "sequelize";
 
 export class Document extends Sequelize.Model {
   id: number;
@@ -41,22 +41,30 @@ export class Document extends Sequelize.Model {
           primaryKey: true,
           unique: true,
           autoIncrement: true,
-          field: 'id',
+          field: "id",
         },
         associationId: {
           type: Sequelize.INTEGER({ length: 10 }),
-          field: 'association_id',
+          field: "association_id",
         },
         path: {
           type: Sequelize.STRING(100),
-          field: 'path',
+          field: "path",
         },
         name: {
           type: Sequelize.STRING(45),
-          field: 'name',
+          field: "name",
+        },
+        createdAt: {
+          field: "created_at",
+          type: Sequelize.DATE,
+        },
+        updatedAt: {
+          field: "updated_at",
+          type: Sequelize.DATE,
         },
       },
-      { sequelize, tableName: 'documents' },
+      { sequelize, tableName: "documents" }
     );
   }
 
