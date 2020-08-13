@@ -5,7 +5,7 @@ export class Emailer {
 
   developmentModeMessage = `
     This message was sent from a development or staging server and should not have been sent to any users.
-    If you have recieved this message please send an email to ${process.env.DEVELOPER_EMAIL}`;
+    If you have received this message please send an email to ${process.env.DEVELOPER_EMAIL}`;
 
   constructor(transporter: Transporter) {
     console.log('testing transport');

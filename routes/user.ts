@@ -73,7 +73,7 @@ export class UserRouter {
         res.status(200).json({
           token: token,
           user: fetchedUser,
-          expiresIn: "3600" // 1h in seconds, sent back to the client
+          expiresIn: "3600", // 1h in seconds, sent back to the client
         });
       })
       .catch((err) => {
@@ -133,7 +133,7 @@ export class UserRouter {
   }
 
   private getUserAssociations(req: Request, res: Response, next: NextFunction) {
-    var userId = req.params.id;
+    var userId = req.query.userId;
     console.log("user id get user associations is " + userId);
     User.findOne({
       where: {
@@ -201,8 +201,11 @@ export class UserRouter {
         const emailer = EmailerFactory.createEmailer();
         const mailOptions: nodemailer.SendMailOptions = {
           from: process.env.EMAIL_FROM,
-          to: "gellertjm@gmail.com", // email,
-          subject: "Reset Password",
+          to:
+            process.env.NODE_ENV === "development"
+              ? process.env.DEVELOPER_EMAIL
+              : email as string,
+          subject: "HOA Director | Password Reset",
           text: `
         A new password has been requested for ${email}.
         To reset your password use the following link: hoadirector.com/forgotten-password/${token.token}
@@ -216,11 +219,12 @@ export class UserRouter {
         return emailer.sendMail(mailOptions);
       })
       .then(() => {
-        res.send({ sucess: true });
+        res.send({ success: true });
       })
       .catch((error) => {
         // bugsnagClient.notify(error);
         res.status(500).send({ success: false });
+        console.log("Error resetting password: " + error);
       });
   }
 
@@ -249,7 +253,7 @@ export class UserRouter {
         return user.tokens[0].destroy();
       })
       .then(() => {
-        res.send({ sucess: true });
+        res.send({ success: true });
       })
       .catch((error) => {
         // bugsnagClient.notify(error);
