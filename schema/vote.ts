@@ -5,7 +5,7 @@ export class Vote extends Model {
   id: number;
   userId: number;
   objectionId: number;
-  annonymous: boolean;
+  anonymous: boolean;
   approved: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -29,9 +29,9 @@ export class Vote extends Model {
           type: DataTypes.INTEGER({ length: 10 }),
           field: "objection_id"
         },
-        annonymous: {
+        anonymous: {
           type: DataTypes.BOOLEAN,
-          field: "annonymous"
+          field: "anonymous"
         },
         approved: {
           type: DataTypes.BOOLEAN,
