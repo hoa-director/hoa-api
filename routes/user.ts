@@ -33,6 +33,8 @@ export class UserRouter {
     // be access with req.user
     // in this case the user based on the User model/schema
     var fetchedUser: User;
+    var initialAssociation: number;
+
     User.findOne({
       where: {
         email: req.body.email,
@@ -50,19 +52,42 @@ export class UserRouter {
         if (!result) {
           return res.status(401).json({ message: "Auth Failed - Status 2" });
         }
-
+        // set the association id upon successful login
+        initialAssociation = fetchedUser
+          .getAvailableAssociations().value[0];
+          // .then((associations) => {
+          //   initialAssociation = associations[0].id;
+          // })
+          // .catch((error) => {
+          //   //bugsnagClient.notify(error);
+          //   console.log("Error setting users initial association" + error);
+          //   res.sendStatus(500);
+          // });
         // if (fetchedUser.role === roles.ADMIN) {
         //   return Association.findAll({
-        //     attributes: ['id', 'name'],
+        //     attributes: ["id", "name"],
         //   })
         //     .then((associations) => {
-        //       req.session.associationId = associations[0].id;
+        //       initialAssociation = associations[0].id;
         //     })
         //     .catch((error) => {
-        //       bugsnagClient.notify(error);
+        //       //bugsnagClient.notify(error);
+        //       console.log("Error setting users initial association" + error);
         //       res.sendStatus(500);
         //     });
-        //   }
+        // } else {
+        //   fetchedUser
+        //     .getAvailableAssociations()
+        //     .then((associations) => {
+        //       initialAssociation = associations[0].id;
+        //       res.send(req.user);
+        //     })
+        //     .catch((error) => {
+        //       //bugsnagClient.notify(error);
+        //       console.log("Error setting users initial association" + error);
+        //       res.sendStatus(500);
+        //     });
+        // }
 
         // create the token to send to the client
         const token = jwt.sign(
@@ -73,6 +98,7 @@ export class UserRouter {
         res.status(200).json({
           token: token,
           user: fetchedUser,
+          associationId: initialAssociation,
           expiresIn: "3600", // 1h in seconds, sent back to the client
         });
       })
@@ -204,7 +230,7 @@ export class UserRouter {
           to:
             process.env.NODE_ENV === "development"
               ? process.env.DEVELOPER_EMAIL
-              : email as string,
+              : (email as string),
           subject: "HOA Director | Password Reset",
           text: `
         A new password has been requested for ${email}.
