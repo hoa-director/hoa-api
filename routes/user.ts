@@ -53,16 +53,33 @@ export class UserRouter {
           return res.status(401).json({ message: "Auth Failed - Status 2" });
         }
         // set the association id upon successful login
-        initialAssociation = fetchedUser
-          .getAvailableAssociations().value[0];
-          // .then((associations) => {
-          //   initialAssociation = associations[0].id;
-          // })
-          // .catch((error) => {
-          //   //bugsnagClient.notify(error);
-          //   console.log("Error setting users initial association" + error);
-          //   res.sendStatus(500);
-          // });
+        fetchedUser
+          .getAvailableAssociations()
+          .then((associationsAvailable) => {
+            initialAssociation = associationsAvailable[0].id;
+          })
+          .then(() => {
+            // create the token to send to the client
+            const token = jwt.sign(
+              { email: fetchedUser.email, userId: fetchedUser.id },
+              process.env.SECRET,
+              { expiresIn: "1h" }
+            );
+            res.status(200).json({
+              token: token,
+              user: fetchedUser,
+              associationId: initialAssociation,
+              expiresIn: "3600", // 1h in seconds, sent back to the client
+            });
+          });
+        // .then((associations) => {
+        //   initialAssociation = associations[0].id;
+        // })
+        // .catch((error) => {
+        //   //bugsnagClient.notify(error);
+        //   console.log("Error setting users initial association" + error);
+        //   res.sendStatus(500);
+        // });
         // if (fetchedUser.role === roles.ADMIN) {
         //   return Association.findAll({
         //     attributes: ["id", "name"],
@@ -88,19 +105,6 @@ export class UserRouter {
         //       res.sendStatus(500);
         //     });
         // }
-
-        // create the token to send to the client
-        const token = jwt.sign(
-          { email: fetchedUser.email, userId: fetchedUser.id },
-          process.env.SECRET,
-          { expiresIn: "1h" }
-        );
-        res.status(200).json({
-          token: token,
-          user: fetchedUser,
-          associationId: initialAssociation,
-          expiresIn: "3600", // 1h in seconds, sent back to the client
-        });
       })
       .catch((err) => {
         console.log("Error logging in: " + err);
@@ -159,7 +163,7 @@ export class UserRouter {
   }
 
   private getUserAssociations(req: Request, res: Response, next: NextFunction) {
-    var userId = req.query.userId;
+    var userId = req.query.userId ? "20" : req.query.userId;
     console.log("user id get user associations is " + userId);
     User.findOne({
       where: {
