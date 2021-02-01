@@ -1,17 +1,17 @@
-import { NextFunction, Request, Response, Router } from 'express';
-import { createTransport, Transporter } from 'nodemailer';
-import * as fs from 'fs';
-import * as path from 'path';
+import { NextFunction, Request, Response, Router } from "express";
+import { createTransport, Transporter } from "nodemailer";
+import * as fs from "fs";
+import * as path from "path";
 
-import { Emailer } from '../classes/emailer';
+import { Emailer } from "../classes/emailer";
 import {
   Association,
   Document,
   Objection,
   User,
   Vote,
-} from '../schema/schemas';
-import { Unit } from '../schema/unit';
+} from "../schema/schemas";
+import { Unit } from "../schema/unit";
 
 // import { bugsnagClient } from '../config/bugsnag';
 
@@ -24,26 +24,25 @@ export class ApiRouter {
   }
 
   init() {
-    this.router.get('/documents', this.getDocuments);
-    this.router.get('/documents/:id', this.viewDocument);
-    this.router.get('/directory', this.getDirectory);
-    this.router.get('/rules', this.getRules);
-    this.router.get('/units', this.getUnits);
-    this.router.get('/objections', this.getObjections);
-    this.router.get('/objections/past', this.getPastObjections);
-    this.router.get('/objections/:id', this.getObjection);
-    this.router.get('/inbox', this.getInbox);
-    this.router.get('/outbox', this.getOutbox);
-    this.router.post('/objections', this.fileObjection);
-    this.router.post('/vote', this.submitVote);
-    this.router.get('/', (req: Request, res: Response, next: NextFunction) => {
+    this.router.get("/documents", this.getDocuments);
+    this.router.get("/documents/:id", this.viewDocument);
+    this.router.get("/directory", this.getDirectory);
+    this.router.get("/rules", this.getRules);
+    this.router.get("/units", this.getUnits);
+    this.router.get("/objections", this.getObjections);
+    this.router.get("/objections/past", this.getPastObjections);
+    this.router.get("/objections/:id", this.getObjection);
+    this.router.get("/inbox", this.getInbox);
+    this.router.get("/outbox", this.getOutbox);
+    this.router.post("/objections", this.fileObjection);
+    this.router.post("/vote", this.submitVote);
+    this.router.get("/", (req: Request, res: Response, next: NextFunction) => {
       res.sendStatus(200);
     });
   }
 
   private getDirectory = (req: Request, res: Response, next: NextFunction) => {
-    // TODO: remove the hard coded 2
-    const associationId = req.session.associationId || 2;
+    const associationId: any = req.query.associationId;
     Association.getDirectoryByAssociationId(associationId)
       .then((directory) => {
         res.send(directory);
@@ -52,10 +51,9 @@ export class ApiRouter {
         // bugsnagClient.notify(error);
         res.sendStatus(500);
       });
-  }
+  };
   private getRules = (req: Request, res: Response, next: NextFunction) => {
-    // TODO: remove the hard coded 2
-    const associationId = req.session.associationId || 2;
+    const associationId: any = req.query.associationId;
     Association.getRuleListsByAssociationId(associationId)
       .then((ruleLists) => {
         res.send(ruleLists);
@@ -64,7 +62,7 @@ export class ApiRouter {
         // bugsnagClient.notify(error);
         res.sendStatus(500);
       });
-  }
+  };
   private fileObjection = (req: Request, res: Response, next: NextFunction) => {
     // TODO: remove the hard coded 2
     const associationId = req.session.associationId || 2;
@@ -92,36 +90,30 @@ export class ApiRouter {
         return Association.getUsersByAssociationId(associationId).then(
           (users) => {
             const emails = users.map((user) => user.email);
-            const emailList = emails.join(', ');
+            const emailList = emails.join(", ");
             return emailer.sendMail({
               from: process.env.EMAIL_FROM,
               to: emailList,
-              subject: 'A new objection has been submitted on HOA director',
+              subject: "A new objection has been submitted on HOA director",
               text: `
               A new objection has been submitted by ${req.user.name}
-              To view the objection please use the following link: hoadirector.com/resolution-center/objection/view/${
-                filedObjection.id
-              }
+              To view the objection please use the following link: hoadirector.com/resolution-center/objection/view/${filedObjection.id}
             `,
               html: `
               <p>A new objection has been submitted by ${req.user.name}</p>
-              <p>To view the objection click <a href="hoadirector.com/objection/view/${
-                filedObjection.id
-              }">here</a></p>
+              <p>To view the objection click <a href="hoadirector.com/objection/view/${filedObjection.id}">here</a></p>
               <p>Or copy and paste the following link into your web browser:</p>
-              <p>hoadirector.com/resolution-center/objection/view/${
-                filedObjection.id
-              }</p>
+              <p>hoadirector.com/resolution-center/objection/view/${filedObjection.id}</p>
             `,
             });
-          },
+          }
         );
       })
       .catch((error) => {
         // bugsnagClient.notify(error);
         res.sendStatus(500);
       });
-  }
+  };
   private submitVote = (req: Request, res: Response, next: NextFunction) => {
     // TODO: confirm user is in association
     // TODO: user more consise + type conversion
@@ -148,7 +140,7 @@ export class ApiRouter {
         }
         res.sendStatus(500);
       });
-  }
+  };
   /**
    * Get objections for the users asscoiation
    * @param {Request} req
@@ -168,7 +160,7 @@ export class ApiRouter {
           res.sendStatus(500);
         });
     });
-  }
+  };
   /**
    * Get objections for the users asscoiation
    * @param {Request} req
@@ -189,7 +181,7 @@ export class ApiRouter {
           res.sendStatus(500);
         });
     });
-  }
+  };
   /**
    * Get objections for the users asscoiation
    * @param {Request} req
@@ -210,7 +202,7 @@ export class ApiRouter {
           res.sendStatus(500);
         });
     });
-  }
+  };
 
   /**
    * Get expired for the users asscoiation
@@ -221,7 +213,7 @@ export class ApiRouter {
   private getPastObjections = (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ) => {
     const associationId: number = parseInt(req.session.associationId);
     Association.findByPk(associationId).then((association) => {
@@ -235,7 +227,7 @@ export class ApiRouter {
           res.sendStatus(500);
         });
     });
-  }
+  };
 
   /**
    * Get specific for the users asscoiation
@@ -250,31 +242,31 @@ export class ApiRouter {
       // where: {
       //   associationId,
       // },
-      attributes: ['comment', 'closedAt', 'associationId', 'id'],
+      attributes: ["comment", "closedAt", "associationId", "id"],
       include: [
         {
           model: User,
-          as: 'submittedBy',
-          attributes: ['id'],
+          as: "submittedBy",
+          attributes: ["id"],
           include: [
             {
               model: Unit,
-              as: 'units',
+              as: "units",
               where: { associationId },
-              attributes: ['addressLineOne'],
+              attributes: ["addressLineOne"],
             },
           ],
         },
         {
           model: User,
-          as: 'submittedAgainst',
-          attributes: ['id'],
+          as: "submittedAgainst",
+          attributes: ["id"],
           include: [
             {
               model: Unit,
-              as: 'units',
+              as: "units",
               where: { associationId },
-              attributes: ['addressLineOne'],
+              attributes: ["addressLineOne"],
             },
           ],
         },
@@ -307,8 +299,8 @@ export class ApiRouter {
       include: [
         {
           model: Unit,
-          as: 'units',
-          attributes: ['userId', 'addressLineOne'],
+          as: "units",
+          attributes: ["userId", "addressLineOne"],
         },
       ],
     })
@@ -322,9 +314,7 @@ export class ApiRouter {
   }
 
   private getDocuments = (req: Request, res: Response, next: NextFunction) => {
-    // TODO: remove hard coded association id
-    // const associationId = req.session.associationId  || 2;
-    const associationId = 2;
+    const associationId: any = req.query.associationId;
     Document.getDocumentsByAssociation(associationId)
       .then((documents) => {
         res.send(documents);
@@ -334,17 +324,17 @@ export class ApiRouter {
         // bugsnagClient.notify(error);
         res.sendStatus(500);
       });
-  }
+  };
 
   private viewDocument = (req: Request, res: Response, next: NextFunction) => {
-    const associationId = req.session.associationId || 2; // TODO: remove hard coded association id
+    const associationId: any = req.query.associationId;
     const documentId = req.params.id;
     Document.getDocumentByAssociationAndId(associationId, documentId)
       .then((document: any) => {
-        const documentPath = path.join(__dirname, '..', document.path);
+        const documentPath = path.join(__dirname, "..", document.path);
         const data = fs.readFileSync(documentPath);
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', 'inline; name=' + document.name);
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader("Content-Disposition", "inline; name=" + document.name);
         res.send(data);
       })
       .catch((error) => {
@@ -352,7 +342,7 @@ export class ApiRouter {
         // bugsnagClient.notify(error);
         res.sendStatus(500);
       });
-  }
+  };
 }
 
 const apiRoutes = new ApiRouter().router;
