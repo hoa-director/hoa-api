@@ -163,7 +163,7 @@ export class UserRouter {
   }
 
   private getUserAssociations(req: Request, res: Response, next: NextFunction) {
-    var userId = req.query.userId ? "20" : req.query.userId;
+    var userId = req.query.userId;
     console.log("user id get user associations is " + userId);
     User.findOne({
       where: {
