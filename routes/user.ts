@@ -1,6 +1,4 @@
 import { NextFunction, Request, Response, Router } from "express";
-import * as passport from "passport";
-
 import { urlencoded } from "body-parser";
 import { roles } from "../config/roles";
 import { EmailerFactory } from "../factories/emailer-factory";
@@ -33,7 +31,8 @@ export class UserRouter {
     // be access with req.user
     // in this case the user based on the User model/schema
     var fetchedUser: User;
-    var initialAssociation: number;
+    var initialAssociationId: number;
+    var initialAssociationName: string;
 
     User.findOne({
       where: {
@@ -52,11 +51,12 @@ export class UserRouter {
         if (!result) {
           return res.status(401).json({ message: "Auth Failed - Status 2" });
         }
-        // set the association id upon successful login
+        // set the association upon successful login
         fetchedUser
           .getAvailableAssociations()
           .then((associationsAvailable) => {
-            initialAssociation = associationsAvailable[0].id;
+            initialAssociationId = associationsAvailable[0].id;
+            initialAssociationName = associationsAvailable[0].name;
           })
           .then(() => {
             // create the token to send to the client
@@ -68,7 +68,10 @@ export class UserRouter {
             res.status(200).json({
               token: token,
               user: fetchedUser,
-              associationId: initialAssociation,
+              association: {
+                id: initialAssociationId, 
+                name: initialAssociationName
+              },
               expiresIn: "3600", // 1h in seconds, sent back to the client
             });
           });
@@ -141,12 +144,17 @@ export class UserRouter {
     res.send({});
   }
 
-  public loggedin(req: Request, res: Response, next: NextFunction) {
-    if (req.isAuthenticated()) {
-      res.send(req.user);
-    } else {
-      res.sendStatus(403);
-    }
+  public getloggedInUser(req: Request, res: Response, next: NextFunction) {
+    var fetchedUser: User;
+
+    User.findOne({
+      where: {
+        id: req.query.userId,
+      },
+    })
+    .then(user => {
+      res.status(200).json({ userFirstName: user.firstName });
+    });
   }
 
   public register(req: Request, res: Response, next: NextFunction) {
@@ -209,13 +217,6 @@ export class UserRouter {
         // bugsnagClient.notify(error);
         res.sendStatus(500);
       });
-  }
-
-  private isLoggedIn(req: Request, res: Response, next: NextFunction) {
-    if (req.isAuthenticated()) {
-      return next();
-    }
-    res.sendStatus(403);
   }
 
   private forgotten(req: Request, res: Response, next: NextFunction) {
@@ -304,7 +305,7 @@ export class UserRouter {
     this.router.post("/forgotten/", this.changeForgottenPassword);
     this.router.get("/associations", checkAuth, this.getUserAssociations);
     this.router.post("/associations", checkAuth, this.setCurrentAssociation);
-    this.router.get("/", checkAuth, this.loggedin);
+    this.router.get("/loggedInUser", checkAuth, this.getloggedInUser);
   }
 }
 
