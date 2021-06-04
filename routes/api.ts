@@ -13,6 +13,8 @@ import {
 } from "../schema/schemas";
 import { Unit } from "../schema/unit";
 
+const checkAuth = require("../middleware/check-auth");
+
 // import { bugsnagClient } from '../config/bugsnag';
 
 export class ApiRouter {
