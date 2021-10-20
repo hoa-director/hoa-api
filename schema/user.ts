@@ -37,14 +37,14 @@ export class User extends Model {
     User.init(
       {
         id: {
-          type: DataTypes.INTEGER({ length: 10 }),
+          type: DataTypes.INTEGER,
           primaryKey: true,
           unique: true,
           autoIncrement: true,
           field: "id"
         },
         email: {
-          type: DataTypes.STRING(100),
+          type: DataTypes.STRING,
           validate: {
             max: 100,
             isEmail: true
@@ -53,7 +53,7 @@ export class User extends Model {
           field: "email"
         },
         password: {
-          type: DataTypes.STRING(45),
+          type: DataTypes.STRING,
           validate: {
             max: 45
           },
@@ -64,35 +64,22 @@ export class User extends Model {
           field: "number"
         },
         role: {
-          type: DataTypes.INTEGER({ length: 2 }),
-          field: "role"
+          type: DataTypes.INTEGER,
+          field: "role",
         },
         firstName: {
-          type: DataTypes.STRING(45),
+          type: DataTypes.STRING,
           field: "first_name"
         },
         lastName: {
-          type: DataTypes.STRING(45),
+          type: DataTypes.STRING,
           field: "last_name"
-        },
-        // fullName: {
-        //     type: DataTypes.STRING(91),
-        //     field: 'full_name',
-        // },
-        createdAt: {
-          type: DataTypes.DATE,
-          field: "created_at"
-        },
-        updatedAt: {
-          type: DataTypes.DATE,
-          field: "updated_at"
-        },
-        deletedAt: {
-          type: DataTypes.DATE,
-          field: "deleted_at"
         }
       },
-      { sequelize, tableName: "users" }
+      { 
+        sequelize, 
+        tableName: "users" 
+      }
     );
     User.beforeCreate((user, options) => {
       console.log(user);
@@ -100,8 +87,6 @@ export class User extends Model {
       user.password = encryptedPassword;
     });
   }
-
-  public static asscociate(model) {}
 
   public getAvailableAssociations(): Bluebird<Association[]> {
     const includedAttributes = ["id", "name"];

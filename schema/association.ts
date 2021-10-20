@@ -154,7 +154,7 @@ export class Association extends Model {
     Association.init(
       {
         id: {
-          type: DataTypes.INTEGER({ length: 10 }),
+          type: DataTypes.INTEGER,
           primaryKey: true,
           unique: true,
           autoIncrement: true,
@@ -165,7 +165,7 @@ export class Association extends Model {
           field: 'name',
         },
         objectionVoteTime: {
-          type: DataTypes.INTEGER({ length: 15 }),
+          type: DataTypes.INTEGER,
           field: 'objection_vote_time',
         },
       },

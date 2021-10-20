@@ -8,15 +8,12 @@ import User, { UserSchema } from "../schema/user";
 // import { bugsnagClient } from "../config/bugsnag";
 import Mail = require("nodemailer/lib/mailer");
 
-import { SendMailOptions } from "nodemailer";
 import * as nodemailer from "nodemailer";
 // import { ConsoleReporter } from 'jasmine';
 
 const jwt = require("jsonwebtoken");
 
 const checkAuth = require("../middleware/check-auth");
-
-// const passportRedirect: passport.AuthenticateOptions = {};
 
 export class UserRouter {
   router: Router;
@@ -27,9 +24,6 @@ export class UserRouter {
   }
 
   public login(req: Request, res: Response, next: NextFunction) {
-    // via authentication through passport, if the user successfully authenticates, the user can
-    // be access with req.user
-    // in this case the user based on the User model/schema
     var fetchedUser: User;
     var initialAssociationId: number;
     var initialAssociationName: string;
@@ -69,79 +63,17 @@ export class UserRouter {
               token: token,
               user: fetchedUser,
               association: {
-                id: initialAssociationId, 
-                name: initialAssociationName
+                id: initialAssociationId,
+                name: initialAssociationName,
               },
               expiresIn: "3600", // 1h in seconds, sent back to the client
             });
           });
-        // .then((associations) => {
-        //   initialAssociation = associations[0].id;
-        // })
-        // .catch((error) => {
-        //   //bugsnagClient.notify(error);
-        //   console.log("Error setting users initial association" + error);
-        //   res.sendStatus(500);
-        // });
-        // if (fetchedUser.role === roles.ADMIN) {
-        //   return Association.findAll({
-        //     attributes: ["id", "name"],
-        //   })
-        //     .then((associations) => {
-        //       initialAssociation = associations[0].id;
-        //     })
-        //     .catch((error) => {
-        //       //bugsnagClient.notify(error);
-        //       console.log("Error setting users initial association" + error);
-        //       res.sendStatus(500);
-        //     });
-        // } else {
-        //   fetchedUser
-        //     .getAvailableAssociations()
-        //     .then((associations) => {
-        //       initialAssociation = associations[0].id;
-        //       res.send(req.user);
-        //     })
-        //     .catch((error) => {
-        //       //bugsnagClient.notify(error);
-        //       console.log("Error setting users initial association" + error);
-        //       res.sendStatus(500);
-        //     });
-        // }
       })
       .catch((err) => {
         console.log("Error logging in: " + err);
         return res.status(401).json({ message: "Auth Failed - Status 3" });
       });
-
-    // if (req.user.role === roles.ADMIN) {
-    //   return Association.findAll({
-    //     attributes: ['id', 'name'],
-    //   })
-    //     .then((associations) => {
-    //       req.session.associationId = associations[0].id;
-    //       res.send(req.user);
-    //     })
-    //     .catch((error) => {
-    //       bugsnagClient.notify(error);
-    //       res.sendStatus(500);
-    //     });
-    // }
-    // req.user
-    //   .getAvailableAssociations()
-    //   .then((associations) => {
-    //     req.session.associationId = associations[0].id;
-    //     res.send(req.user);
-    //   })
-    //   .catch((error) => {
-    //     bugsnagClient.notify(error);
-    //     res.sendStatus(500);
-    //   });
-  }
-
-  private logout(req: Request, res: Response, next: NextFunction) {
-    req.logOut();
-    res.send({});
   }
 
   public getloggedInUser(req: Request, res: Response, next: NextFunction) {
@@ -151,8 +83,7 @@ export class UserRouter {
       where: {
         id: req.query.userId,
       },
-    })
-    .then(user => {
+    }).then((user) => {
       res.status(200).json({ userFirstName: user.firstName });
     });
   }
@@ -193,30 +124,37 @@ export class UserRouter {
     });
   }
 
-  private setCurrentAssociation(
+  private async setCurrentAssociation(
     req: Request,
     res: Response,
     next: NextFunction
   ) {
     const associationId: number = parseInt(req.body.associationId, 10);
-    req.user
-      .getAvailableAssociations()
-      .then((associations) => {
-        if (
-          !associations.some((association) => association.id === associationId)
-        ) {
-          return res.sendStatus(403);
-        }
-        req.session.associationId = associationId;
-        res.send({
-          associations,
-          currentAssociation: req.session.associationId,
+    User.findOne({
+      where: {
+        id: req.query.userId,
+      },
+    }).then((fetchedUser) => {
+      fetchedUser
+        .getAvailableAssociations()
+        .then((associations) => {
+          if (
+            !associations.some(
+              (association) => association.id === associationId
+            )
+          ) {
+            return res.sendStatus(403);
+          }
+          res.send({
+            associations,
+            currentAssociation: associationId,
+          });
+        })
+        .catch((error) => {
+          // bugsnagClient.notify(error);
+          res.sendStatus(500);
         });
-      })
-      .catch((error) => {
-        // bugsnagClient.notify(error);
-        res.sendStatus(500);
-      });
+    });
   }
 
   private forgotten(req: Request, res: Response, next: NextFunction) {
@@ -293,13 +231,7 @@ export class UserRouter {
   }
 
   init() {
-    // this.router.post(
-    //   "/login/",
-    //   passport.authenticate("local", passportRedirect),
-    //   this.login
-    // );
     this.router.post("/login/", this.login);
-    this.router.get("/logout", this.logout);
     this.router.post("/register/", this.register);
     this.router.get("/forgotten/", this.forgotten);
     this.router.post("/forgotten/", this.changeForgottenPassword);

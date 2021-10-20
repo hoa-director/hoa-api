@@ -1,11 +1,10 @@
-require('dotenv').config();
+require("dotenv").config();
 import { Sequelize, Options, OperatorsAliases } from "sequelize";
-
-const logging = process.env.NODE_ENV === "development" ? true : false;
 
 const connectionOptions: Options = {
   host: process.env.DATABASE_HOST,
-  dialect: 'mysql',
+  dialect: "postgres",
+  port: 5432,
   pool: {
     max: 10,
     min: 0,
@@ -14,7 +13,7 @@ const connectionOptions: Options = {
     underscored: true,
     paranoid: true,
   },
-  logging
+  logging: process.env.NODE_ENV === "development" ? (...msg) => console.log(msg) : false,
 };
 
 class DatabaseConnection {
@@ -32,6 +31,7 @@ class DatabaseConnection {
       );
     }
     this.testConnection();
+    process.env.NODE_ENV === "development" ? this.synchronize() : null;
   }
 
   testConnection() {
@@ -45,7 +45,10 @@ class DatabaseConnection {
         console.error(error);
       });
   }
-  
+
+  async synchronize() {
+    await this.sequelize.sync({ alter: true});
+  }
 }
 
 export const connection = new DatabaseConnection().sequelize;

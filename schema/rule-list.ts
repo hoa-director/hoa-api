@@ -13,14 +13,14 @@ export class RuleList extends Sequelize.Model {
     RuleList.init(
       {
         id: {
-          type: Sequelize.INTEGER({ length: 10 }),
+          type: Sequelize.INTEGER,
           primaryKey: true,
           unique: true,
           autoIncrement: true,
           field: 'id',
         },
         associationId: {
-          type: Sequelize.INTEGER({ length: 10 }),
+          type: Sequelize.INTEGER,
           field: 'association_id',
         },
         title: {
@@ -28,7 +28,7 @@ export class RuleList extends Sequelize.Model {
           field: 'title',
         },
         description: {
-          type: Sequelize.STRING(100),
+          type: Sequelize.STRING(1000),
           field: 'description',
         },
       },
