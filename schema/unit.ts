@@ -20,18 +20,18 @@ export class Unit extends Sequelize.Model {
     Unit.init(
       {
         id: {
-          type: Sequelize.INTEGER({ length: 10 }),
+          type: Sequelize.INTEGER,
           primaryKey: true,
           unique: true,
           autoIncrement: true,
           field: 'id',
         },
         userId: {
-          type: Sequelize.INTEGER({ length: 10 }),
+          type: Sequelize.INTEGER,
           field: 'user_id',
         },
         associationId: {
-          type: Sequelize.INTEGER({ length: 10 }),
+          type: Sequelize.INTEGER,
           field: 'association_id',
         },
         addressLineOne: {
@@ -51,7 +51,7 @@ export class Unit extends Sequelize.Model {
           field: 'state',
         },
         zip: {
-          type: Sequelize.INTEGER({ length: 10 }),
+          type: Sequelize.INTEGER,
           field: 'zip',
         },
       },

@@ -40,9 +40,8 @@ AssociationSchema.hasMany(ObjectionSchema, {
 });
 
 AssociationSchema.belongsToMany(UserSchema, {
-  through: UnitSchema,
+  through: { model: UnitSchema, unique: false },
   as: 'users',
-
 });
 
 DocumentSchema.belongsTo(AssociationSchema, {
@@ -58,30 +57,30 @@ ForgottenPasswordTokenSchema.belongsTo(UserSchema, {
 });
 
 ObjectionSchema.belongsTo(UserSchema, {
-  as: 'submittedBy',
+  as: 'submittedByUser',
   foreignKey: 'submitted_by_user_id',
   targetKey: 'id',
 });
 
 ObjectionSchema.belongsTo(UserSchema, {
-  as: 'submittedAgainst',
+  as: 'submittedAgainstUser',
   foreignKey: 'submitted_against_user_id',
   targetKey: 'id',
 });
 
-// ObjectionSchema.belongsTo(UnitSchema, {
-//     as: 'submittedBy',
-//     // through: UserSchema,
-//     foreignKey: 'submitted_by_unit_id',
-//     targetKey: 'id',
-// });
+ObjectionSchema.belongsTo(UnitSchema, {
+    as: 'submittedByUnit',
+    // through: UserSchema,
+    foreignKey: 'submitted_by_unit_id',
+    targetKey: 'id',
+});
 
-// ObjectionSchema.belongsTo(UnitSchema, {
-//     as: 'submittedAgainst',
-//     // through: UserSchema,
-//     foreignKey: 'submitted_against_unit_id',
-//     targetKey: 'id',
-// });
+ObjectionSchema.belongsTo(UnitSchema, {
+    as: 'submittedAgainstUnit',
+    // through: UserSchema,
+    foreignKey: 'submitted_against_unit_id',
+    targetKey: 'id',
+});
 
 ObjectionSchema.belongsTo(AssociationSchema, {
   as: 'association',
@@ -131,7 +130,7 @@ UserSchema.hasMany(VoteSchema, {
 });
 
 UserSchema.hasMany(ObjectionSchema, {
-  as: 'objetionsSubmitted',
+  as: 'objectionsSubmitted',
   foreignKey: 'submitted_by_user_id',
 });
 
@@ -141,7 +140,7 @@ UserSchema.hasMany(ObjectionSchema, {
 });
 
 UserSchema.belongsToMany(AssociationSchema, {
-  through: UnitSchema,
+  through: { model: UnitSchema, unique: false },
   as: 'associations',
 });
 

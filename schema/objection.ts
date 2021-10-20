@@ -41,14 +41,14 @@ export class Objection extends Model {
     Objection.init(
       {
         id: {
-          type: DataTypes.INTEGER({ length: 10 }),
+          type: DataTypes.INTEGER,
           primaryKey: true,
           unique: true,
           autoIncrement: true,
           field: 'id',
         },
         associationId: {
-          type: DataTypes.INTEGER({ length: 10 }),
+          type: DataTypes.INTEGER,
           field: 'association_id',
         },
         comment: {
@@ -56,29 +56,17 @@ export class Objection extends Model {
           field: 'comment',
         },
         submittedByUserId: {
-          type: DataTypes.INTEGER({ length: 10 }),
+          type: DataTypes.INTEGER,
           field: 'submitted_by_user_id',
         },
         submittedAgainstUserId: {
-          type: DataTypes.INTEGER({ length: 10 }),
+          type: DataTypes.INTEGER,
           field: 'submitted_against_user_id',
         },
         closedAt: {
           type: DataTypes.DATE,
           field: 'closed_at',
-        },
-        createdAt: {
-          type: DataTypes.DATE,
-          field: 'created_at',
-        },
-        updatedAt: {
-          type: DataTypes.DATE,
-          field: 'updated_at',
-        },
-        deletedAt: {
-          type: DataTypes.DATE,
-          field: 'deleted_at',
-        },
+        }
       },
       { sequelize, tableName: 'objections' },
     );

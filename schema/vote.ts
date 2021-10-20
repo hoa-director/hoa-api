@@ -15,18 +15,18 @@ export class Vote extends Model {
     Vote.init(
       {
         id: {
-          type: DataTypes.INTEGER({ length: 10 }),
+          type: DataTypes.INTEGER,
           primaryKey: true,
           unique: true,
           autoIncrement: true,
           field: "id"
         },
         userId: {
-          type: DataTypes.INTEGER({ length: 10 }),
+          type: DataTypes.INTEGER,
           field: "user_id"
         },
         objectionId: {
-          type: DataTypes.INTEGER({ length: 10 }),
+          type: DataTypes.INTEGER,
           field: "objection_id"
         },
         anonymous: {

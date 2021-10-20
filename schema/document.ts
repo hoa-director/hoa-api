@@ -37,14 +37,14 @@ export class Document extends Sequelize.Model {
     Document.init(
       {
         id: {
-          type: Sequelize.INTEGER({ length: 10 }),
+          type: Sequelize.INTEGER,
           primaryKey: true,
           unique: true,
           autoIncrement: true,
           field: "id",
         },
         associationId: {
-          type: Sequelize.INTEGER({ length: 10 }),
+          type: Sequelize.INTEGER,
           field: "association_id",
         },
         path: {
@@ -54,15 +54,7 @@ export class Document extends Sequelize.Model {
         name: {
           type: Sequelize.STRING(45),
           field: "name",
-        },
-        createdAt: {
-          field: "created_at",
-          type: Sequelize.DATE,
-        },
-        updatedAt: {
-          field: "updated_at",
-          type: Sequelize.DATE,
-        },
+        }
       },
       { sequelize, tableName: "documents" }
     );
