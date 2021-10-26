@@ -20,8 +20,8 @@ class DatabaseConnection {
   sequelize: Sequelize;
 
   constructor() {
-    if (process.env.JAWSDB_URL) {
-      this.sequelize = new Sequelize(process.env.JAWSDB_URL);
+    if (process.env.DATABASE_URL) {
+      this.sequelize = new Sequelize(process.env.DATABASE_URL);
     } else {
       this.sequelize = new Sequelize(
         process.env.DATABASE_DB,

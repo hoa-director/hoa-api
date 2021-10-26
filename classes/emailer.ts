@@ -23,8 +23,7 @@ export class Emailer {
   // options should be of type SendMailOptions
   sendMail(options: SendMailOptions) {
     if (
-      process.env.NODE_ENV === 'development' ||
-      process.env.NODE_ENV === 'staging'
+      process.env.NODE_ENV === 'development'
     ) {
       options.to = process.env.DEVELOPER_EMAIL;
       options.cc = process.env.DEVELOPER_EMAIL;
