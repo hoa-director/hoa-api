@@ -11,7 +11,8 @@ if (process.env.DATABASE_URL) {
   connectionOptions = {
     host: params.hostname,
     dialect: "postgres",
-    port: 5432,
+    port: params.hostname,
+    ssl: true,
     pool: {
       max: 10,
       min: 0,
@@ -23,8 +24,7 @@ if (process.env.DATABASE_URL) {
     logging:
         isStagingEnv
         ? (...msg) => console.log(msg)
-        : false,
-    ssl: true
+        : false
   }
 } else {
   connectionOptions = {
