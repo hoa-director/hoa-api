@@ -1,33 +1,53 @@
 require("dotenv").config();
 import { Sequelize, Options, OperatorsAliases } from "sequelize";
+const url = require('url');
 
 const isDevEnv = process.env.NODE_ENV === "development";
 const isStagingEnv = process.env.NODE_ENV === "staging";
+let connectionOptions: Options;
 
-const connectionOptions: Options = {
-  host: isDevEnv ? process.env.DATABASE_HOST : undefined,
-  dialect: "postgres",
-  port: 5432,
-  pool: {
-    max: 10,
-    min: 0,
-  },
-  define: {
-    underscored: true,
-    paranoid: true,
-  },
-  logging:
-      isDevEnv || isStagingEnv
-      ? (...msg) => console.log(msg)
-      : false,
-  ssl: isDevEnv ? false : true
-};
-
+if (process.env.DATABASE_URL) {
+  const params = url.parse(process.env.DATABASE_URL);
+  connectionOptions = {
+    host: params.hostname,
+    dialect: "postgres",
+    port: 5432,
+    pool: {
+      max: 10,
+      min: 0,
+    },
+    define: {
+      underscored: true,
+      paranoid: true,
+    },
+    logging:
+        isStagingEnv
+        ? (...msg) => console.log(msg)
+        : false,
+    ssl: true
+  }
+} else {
+  connectionOptions = {
+    host: process.env.DATABASE_HOST,
+    dialect: "postgres",
+    port: 5432,
+    pool: {
+      max: 10,
+      min: 0,
+    },
+    define: {
+      underscored: true,
+      paranoid: true,
+    },
+    logging: (...msg) => console.log(msg)
+  };
+}
 class DatabaseConnection {
   sequelize: Sequelize;
 
   constructor() {
     if (process.env.DATABASE_URL) {
+      const params = url.parse(process.env.DATABASE_URL);
       this.sequelize = new Sequelize(process.env.DATABASE_URL, connectionOptions);
     } else {
       this.sequelize = new Sequelize(
