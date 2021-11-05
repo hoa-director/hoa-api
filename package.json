@@ -3,9 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "license": "MIT",
-
   "contributors": [
-    "Dexter St Pierre <dexter.stpierre.dev@gmail.com>", 
+    "Dexter St Pierre <dexter.stpierre.dev@gmail.com>",
     "John Gellert <gellertjm@gmail.com>"
   ],
   "engines": {
