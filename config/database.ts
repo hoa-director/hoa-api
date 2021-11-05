@@ -1,9 +1,6 @@
 require("dotenv").config();
 import { Sequelize, Options, OperatorsAliases } from "sequelize";
 const url = require("url");
-
-const isDevEnv = process.env.NODE_ENV === "development";
-const isStagingEnv = process.env.NODE_ENV === "staging";
 class DatabaseConnection {
   sequelize: Sequelize;
 
@@ -23,7 +20,7 @@ class DatabaseConnection {
           underscored: true,
           paranoid: true,
         },
-        logging: isStagingEnv ? (...msg) => console.log(msg) : false,
+        logging: process.env.NODE_ENV === "staging" ? (...msg) => console.log(msg) : false,
         ssl: true,
       };
 
@@ -72,7 +69,7 @@ class DatabaseConnection {
   }
 
   async synchronize() {
-    (await isDevEnv) || isStagingEnv
+    (await process.env.NODE_ENV === "development") || process.env.NODE_ENV === "staging"
       ? this.sequelize.sync({ alter: true })
       : this.sequelize.sync();
   }
