@@ -13,7 +13,10 @@ const connectionOptions: Options = {
     underscored: true,
     paranoid: true,
   },
-  logging: process.env.NODE_ENV === "development" ? (...msg) => console.log(msg) : false,
+  logging:
+    process.env.NODE_ENV === "development"
+      ? (...msg) => console.log(msg)
+      : false,
 };
 
 class DatabaseConnection {
@@ -31,7 +34,9 @@ class DatabaseConnection {
       );
     }
     this.testConnection();
-    process.env.NODE_ENV === "development" ? this.synchronize() : null;
+    process.env.NODE_ENV === "development" || process.env.NODE_ENV === "staging"
+      ? this.synchronize()
+      : null;
   }
 
   testConnection() {
@@ -47,7 +52,7 @@ class DatabaseConnection {
   }
 
   async synchronize() {
-    await this.sequelize.sync({ alter: true});
+    await this.sequelize.sync({ alter: true });
   }
 }
 
