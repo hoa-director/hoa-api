@@ -3,7 +3,14 @@
   "version": "0.0.0",
   "private": true,
   "license": "MIT",
-  "author": "Dexter St Pierre <dexter.stpierre.dev@gmail.com>",
+
+  "contributors": [
+    "Dexter St Pierre <dexter.stpierre.dev@gmail.com>", 
+    "John Gellert <gellertjm@gmail.com>"
+  ],
+  "engines": {
+    "node": "16.x"
+  },
   "scripts": {
     "build-dev": "npm run clean && npm run build-server",
     "build-server-watch": "tsc-watch --project tsconfig.server.json --onSuccess \"npm run copy-static-assets\"",
