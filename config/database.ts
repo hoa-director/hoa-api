@@ -1,8 +1,11 @@
 require("dotenv").config();
 import { Sequelize, Options, OperatorsAliases } from "sequelize";
 
+const isDevEnv = process.env.NODE_ENV === "development";
+const isStagingEnv = process.env.NODE_ENV === "staging";
+
 const connectionOptions: Options = {
-  host: process.env.DATABASE_HOST,
+  host: isDevEnv ? process.env.DATABASE_HOST : undefined,
   dialect: "postgres",
   port: 5432,
   pool: {
@@ -14,9 +17,10 @@ const connectionOptions: Options = {
     paranoid: true,
   },
   logging:
-    process.env.NODE_ENV === "development"
+      isDevEnv || isStagingEnv
       ? (...msg) => console.log(msg)
       : false,
+  ssl: isDevEnv ? false : true
 };
 
 class DatabaseConnection {
@@ -34,9 +38,7 @@ class DatabaseConnection {
       );
     }
     this.testConnection();
-    process.env.NODE_ENV === "development" || process.env.NODE_ENV === "staging"
-      ? this.synchronize()
-      : null;
+    this.synchronize()
   }
 
   testConnection() {
@@ -52,7 +54,7 @@ class DatabaseConnection {
   }
 
   async synchronize() {
-    await this.sequelize.sync({ alter: true });
+    await isDevEnv || isStagingEnv ? this.sequelize.sync({ alter: true }) : this.sequelize.sync();
   }
 }
 
