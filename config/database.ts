@@ -6,12 +6,7 @@ class DatabaseConnection {
 
   constructor() {
     if (process.env.DATABASE_URL) {
-      const params = url.parse(process.env.DATABASE_URL);
-      const auth = params.auth.split(":");
       const connectionOptions: Options = {
-        host: params.hostname,
-        dialect: "postgres",
-        port: params.port,
         pool: {
           max: 10,
           min: 0,
@@ -20,14 +15,20 @@ class DatabaseConnection {
           underscored: true,
           paranoid: true,
         },
-        logging: process.env.NODE_ENV === "staging" ? (...msg) => console.log(msg) : false,
-        ssl: true,
+        logging:
+          process.env.NODE_ENV === "staging"
+            ? (...msg) => console.log(msg)
+            : false,
+        dialectOptions: {
+          ssl: {
+            require: true,
+            rejectUnauthorized: false, // very important
+          },
+        },
       };
 
       this.sequelize = new Sequelize(
-        params.pathname.split("/")[1],
-        auth[0],
-        auth[1],
+        `${process.env.DATABASE_URL}?sslmode=require`,
         connectionOptions
       );
     } else {
@@ -69,7 +70,8 @@ class DatabaseConnection {
   }
 
   async synchronize() {
-    (await process.env.NODE_ENV === "development") || process.env.NODE_ENV === "staging"
+    (await process.env.NODE_ENV) === "development" ||
+    process.env.NODE_ENV === "staging"
       ? this.sequelize.sync({ alter: true })
       : this.sequelize.sync();
   }
