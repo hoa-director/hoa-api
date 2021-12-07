@@ -14,7 +14,7 @@ export class EmailerFactory {
     return createTransport({
       host: process.env.SMTP_SERVER,
       port: parseInt(process.env.SMTP_PORT, 10),
-      secure: true, // use TLS
+      secure: false, // upgrade later with STARTTLS
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASSWORD,
