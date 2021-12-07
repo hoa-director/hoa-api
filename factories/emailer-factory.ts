@@ -1,5 +1,4 @@
 import { createTransport, Transporter } from 'nodemailer';
-
 import { Emailer } from '../classes/emailer';
 
 export class EmailerFactory {

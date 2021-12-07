@@ -8,7 +8,6 @@ export class Emailer {
     If you have received this message please send an email to ${process.env.DEVELOPER_EMAIL}`;
 
   constructor(transporter: Transporter) {
-    console.log('testing transport');
     transporter.verify((error) => {
       if (error) {
         console.log(error);
