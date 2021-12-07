@@ -85,12 +85,12 @@ export class ApiRouter {
           res.status(200).send({ success: true });
           // TODO: move this to a factory
           const transporter: Transporter = createTransport({
-            host: process.env.MAILGUN_SMTP_SERVER,
-            port: parseInt(process.env.MAILGUN_SMTP_PORT, 10),
+            host: process.env.SMTP_SERVER,
+            port: parseInt(process.env.SMTP_PORT, 10),
             secure: true, // upgrade later with STARTTLS
             auth: {
-              user: process.env.MAILGUN_SMTP_LOGIN,
-              pass: process.env.MAILGUN_SMTP_PASSWORD,
+              user: process.env.SMTP_USER,
+              pass: process.env.SMTP_PASSWORD,
             },
           });
           const emailer = new Emailer(transporter);
