@@ -1,35 +1,51 @@
 require("dotenv").config();
 import { Sequelize, Options, OperatorsAliases } from "sequelize";
-
-const isDevEnv = process.env.NODE_ENV === "development";
-const isStagingEnv = process.env.NODE_ENV === "staging";
-
-const connectionOptions: Options = {
-  host: isDevEnv ? process.env.DATABASE_HOST : undefined,
-  dialect: "postgres",
-  port: 5432,
-  pool: {
-    max: 10,
-    min: 0,
-  },
-  define: {
-    underscored: true,
-    paranoid: true,
-  },
-  logging:
-      isDevEnv || isStagingEnv
-      ? (...msg) => console.log(msg)
-      : false,
-  ssl: isDevEnv ? false : true
-};
-
+const url = require("url");
 class DatabaseConnection {
   sequelize: Sequelize;
 
   constructor() {
     if (process.env.DATABASE_URL) {
-      this.sequelize = new Sequelize(process.env.DATABASE_URL, connectionOptions);
+      const connectionOptions: Options = {
+        pool: {
+          max: 10,
+          min: 0,
+        },
+        define: {
+          underscored: true,
+          paranoid: true,
+        },
+        logging:
+          process.env.NODE_ENV === "staging"
+            ? (...msg) => console.log(msg)
+            : false,
+        dialectOptions: {
+          ssl: {
+            require: true,
+            rejectUnauthorized: false, // very important
+          },
+        },
+      };
+
+      this.sequelize = new Sequelize(
+        `${process.env.DATABASE_URL}?sslmode=require`,
+        connectionOptions
+      );
     } else {
+      const connectionOptions: Options = {
+        host: process.env.DATABASE_HOST,
+        dialect: "postgres",
+        port: 5432,
+        pool: {
+          max: 10,
+          min: 0,
+        },
+        define: {
+          underscored: true,
+          paranoid: true,
+        },
+        logging: (...msg) => console.log(msg),
+      };
       this.sequelize = new Sequelize(
         process.env.DATABASE_DB,
         process.env.DATABASE_USER,
@@ -38,7 +54,7 @@ class DatabaseConnection {
       );
     }
     this.testConnection();
-    this.synchronize()
+    this.synchronize();
   }
 
   testConnection() {
@@ -54,7 +70,10 @@ class DatabaseConnection {
   }
 
   async synchronize() {
-    await isDevEnv || isStagingEnv ? this.sequelize.sync({ alter: true }) : this.sequelize.sync();
+    (await process.env.NODE_ENV) === "development" ||
+    process.env.NODE_ENV === "staging"
+      ? this.sequelize.sync({ alter: true })
+      : this.sequelize.sync();
   }
 }
 
