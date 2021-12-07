@@ -12,12 +12,12 @@ export class EmailerFactory {
 
   static getTransporter(): Transporter {
     return createTransport({
-      host: process.env.SMTP_HOST,
-      port: parseInt(process.env.SMTP_PORT, 10),
+      host: process.env.MAILGUN_SMTP_SERVER,
+      port: parseInt(process.env.MAILGUN_SMTP_PORT, 10),
       secure: true, // upgrade later with STARTTLS
       auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASSWORD,
+        user: process.env.MAILGUN_SMTP_LOGIN,
+        pass: process.env.MAILGUN_SMTP_PASSWORD,
       },
     });
   }
