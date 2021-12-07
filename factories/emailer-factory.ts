@@ -12,7 +12,6 @@ export class EmailerFactory {
 
   static getTransporter(): Transporter {
     return createTransport({
-      pool: true,
       host: process.env.SMTP_SERVER,
       port: parseInt(process.env.SMTP_PORT, 10),
       secure: true, // use TLS
