@@ -169,7 +169,7 @@ export class UserRouter {
       .then((token) => {
         const emailer = EmailerFactory.createEmailer();
         const mailOptions: nodemailer.SendMailOptions = {
-          from: process.env.DEVELOPER_EMAIL,
+          from: process.env.FROM_EMAIL,
           to:
             process.env.NODE_ENV === "development"
               ? process.env.DEVELOPER_EMAIL
