@@ -1,3 +1,4 @@
+require("dotenv").config();
 import { NextFunction, Request, Response, Router } from "express";
 import { urlencoded } from "body-parser";
 import { roles } from "../config/roles";
