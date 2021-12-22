@@ -179,12 +179,12 @@ export class UserRouter {
           subject: "HOA Director | Password Reset",
           text: `
         A new password has been requested for ${email}.
-        To reset your password use the following link: ${domain}/forgotten-password/${token.token}
+        To reset your password use the following link: https://${domain}/forgotten-password/${token.token}
         `,
           html: `
         <p>A new password has been requested for ${email}.</p>
-        <p>To reset your password click <a href="${domain}/forgotten-password/${token.token}">here</a></p>
-        <p>or use the following link: ${domain}/forgotten-password/${token.token}</p>
+        <p>To reset your password click <a href="https://${domain}/forgotten-password/${token.token}">here</a></p>
+        <p>or use the following link: https://${domain}/forgotten-password/${token.token}</p>
         `,
         };
         return emailer.sendMail(mailOptions);
