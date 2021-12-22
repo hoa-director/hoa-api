@@ -159,6 +159,7 @@ export class UserRouter {
 
   private forgotten(req: Request, res: Response, next: NextFunction) {
     const email = req.query.email;
+    const domain = process.env.NODE_ENV === "staging" ? process.env.HOA_STAGING_DOMAIN : process.env.HOA_PROD_DOMAIN
     User.findOne({
       where: { email },
     })
@@ -177,7 +178,7 @@ export class UserRouter {
           subject: "HOA Director | Password Reset",
           text: `
         A new password has been requested for ${email}.
-        To reset your password use the following link: hoadirector.com/forgotten-password/${token.token}
+        To reset your password use the following link: ${domain}/forgotten-password/${token.token}
         `,
           html: `
         <p>A new password has been requested for ${email}.</p>
