@@ -183,8 +183,8 @@ export class UserRouter {
         `,
           html: `
         <p>A new password has been requested for ${email}.</p>
-        <p>To reset your password click <a href="hoadirector.com/forgotten-password/${token.token}">here</a></p>
-        <p>or use the following link: hoadirector.com/forgotten-password/${token.token}</p>
+        <p>To reset your password click <a href="${domain}/forgotten-password/${token.token}">here</a></p>
+        <p>or use the following link: ${domain}/forgotten-password/${token.token}</p>
         `,
         };
         return emailer.sendMail(mailOptions);
