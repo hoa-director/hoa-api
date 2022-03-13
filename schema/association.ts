@@ -219,7 +219,7 @@ export class Association extends Model {
       include: [
         {
           model: User,
-          as: 'submittedBy',
+          as: 'submittedByUser',
           attributes: ['id'],
           include: [
             {
@@ -232,7 +232,7 @@ export class Association extends Model {
         },
         {
           model: User,
-          as: 'submittedAgainst',
+          as: 'submittedAgainstUser',
           attributes: ['id'],
           include: [
             {
