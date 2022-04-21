@@ -66,10 +66,9 @@ export class ApiRouter {
       });
   };
   private fileObjection = (req: Request, res: Response, next: NextFunction) => {
-    // TODO: remove the hard coded 2
-    const associationId = req.query.associationId || 2;
+    const associationId: any = req.query.associationId;
     const objection = req.body.objection;
-    const byId = req.query.userId;
+    const byUserId = req.query.userId;
     User.findOne({
       where: {
         id: req.query.userId,
@@ -78,43 +77,43 @@ export class ApiRouter {
       Objection.create({
         associationId,
         comment: objection.comment,
-        submittedByUserId: byId,
+        submittedByUserId: byUserId,
         submittedAgainstUserId: objection.against,
       })
         .then((filedObjection) => {
           res.status(200).send({ success: true });
           // TODO: move this to a factory
-          const transporter: Transporter = createTransport({
-            host: process.env.SMTP_SERVER,
-            port: parseInt(process.env.SMTP_PORT, 10),
-            secure: true, // upgrade later with STARTTLS
-            auth: {
-              user: process.env.SMTP_USER,
-              pass: process.env.SMTP_PASSWORD,
-            },
-          });
-          const emailer = new Emailer(transporter);
-          return Association.getUsersByAssociationId(<number>associationId).then(
-            (users) => {
-              const emails = users.map((user) => user.email);
-              const emailList = emails.join(", ");
-              return emailer.sendMail({
-                from: process.env.EMAIL_FROM,
-                to: emailList,
-                subject: "A new objection has been submitted on HOA director",
-                text: `
-                A new objection has been submitted by ${fetchedUser.firstName} ${fetchedUser.lastName}
-                To view the objection please use the following link: hoadirector.com/resolution-center/objection/view/${filedObjection.id}
-              `,
-                html: `
-                <p>A new objection has been submitted by ${fetchedUser.firstName} ${fetchedUser.lastName}</p>
-                <p>To view the objection click <a href="hoadirector.com/objection/view/${filedObjection.id}">here</a></p>
-                <p>Or copy and paste the following link into your web browser:</p>
-                <p>hoadirector.com/resolution-center/objection/view/${filedObjection.id}</p>
-              `,
-              });
-            }
-          );
+          // const transporter: Transporter = createTransport({
+          //   host: process.env.SMTP_SERVER,
+          //   port: parseInt(process.env.SMTP_PORT, 10),
+          //   secure: true, // upgrade later with STARTTLS
+          //   auth: {
+          //     user: process.env.SMTP_USER,
+          //     pass: process.env.SMTP_PASSWORD,
+          //   },
+          // });
+          // const emailer = new Emailer(transporter);
+          // return Association.getUsersByAssociationId(<number>associationId).then(
+          //   (users) => {
+          //     const emails = users.map((user) => user.email);
+          //     const emailList = emails.join(", ");
+          //     return emailer.sendMail({
+          //       from: process.env.EMAIL_FROM,
+          //       to: emailList,
+          //       subject: "A new objection has been submitted on HOA director",
+          //       text: `
+          //       A new objection has been submitted by ${fetchedUser.firstName} ${fetchedUser.lastName}
+          //       To view the objection please use the following link: hoadirector.com/resolution-center/objection/view/${filedObjection.id}
+          //     `,
+          //       html: `
+          //       <p>A new objection has been submitted by ${fetchedUser.firstName} ${fetchedUser.lastName}</p>
+          //       <p>To view the objection click <a href="hoadirector.com/objection/view/${filedObjection.id}">here</a></p>
+          //       <p>Or copy and paste the following link into your web browser:</p>
+          //       <p>hoadirector.com/resolution-center/objection/view/${filedObjection.id}</p>
+          //     `,
+          //     });
+          //   }
+          // );
         })
         .catch((error) => {
           // bugsnagClient.notify(error);
@@ -126,7 +125,7 @@ export class ApiRouter {
     // TODO: confirm user is in association
     // TODO: user more concise + type conversion
     const objectionId: number = parseInt(req.body.vote.objectionId);
-    const approved: number = parseInt(req.body.vote.approved);
+    const approved: number = parseInt(req.body.vote.vote);
     const anonymous: number = req.body.anonymous
       ? parseInt(req.body.anonymous)
       : 0;
