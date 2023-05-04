@@ -34,7 +34,7 @@
     "express": "^4.18.2",
     "express-session": "^1.17.0",
     "jsonwebtoken": "^9.0.0",
-    "moment": "^2.29.2",
+    "moment": "^2.29.4",
     "mysql2": "^2.1.0",
     "nodemailer": "^6.7.2",
     "npx": "^3.0.0",
