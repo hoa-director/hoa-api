@@ -1,17 +1,20 @@
-import { DataTypes, Model } from "sequelize";
-import { DuplicateError } from "../classes/duplicate-error";
+import { CreationOptional, DataTypes, ForeignKey, Model } from "sequelize";
+import { DuplicateError } from "../classes/duplicate-error.js";
+import { HomeOwnerAssociation } from "./home-owner-association.js";
+import { Objection } from "./objection.js";
+import { User } from "./user.js";
 
 export class Vote extends Model {
-  id: number;
-  userId: number;
-  objectionId: number;
-  anonymous: boolean;
-  approved: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-  deletedAt: Date;
+  declare id: CreationOptional<number>;
+  declare userId: ForeignKey<User["id"]>;
+  declare objectionId: ForeignKey<Objection["id"]>;
+  declare anonymous: boolean;
+  declare approved: boolean;
+  declare createdAt: CreationOptional<Date>;
+  declare updatedAt: CreationOptional<Date>;
+  declare deletedAt: Date | null;
 
-  public static initialize(sequelize) {
+  public static initialize(sequelize: any) {
     Vote.init(
       {
         id: {
@@ -19,33 +22,28 @@ export class Vote extends Model {
           primaryKey: true,
           unique: true,
           autoIncrement: true,
-          field: "id"
         },
         userId: {
           type: DataTypes.INTEGER,
-          field: "user_id"
         },
         objectionId: {
           type: DataTypes.INTEGER,
-          field: "objection_id"
         },
         anonymous: {
           type: DataTypes.BOOLEAN,
-          field: "anonymous"
         },
         approved: {
           type: DataTypes.BOOLEAN,
-          field: "approved"
         }
       },
-      { sequelize, tableName: "votes" }
+      { sequelize }
     );
     Vote.beforeValidate(async (vote, options) => {
       return await Objection.findOne({
         where: { id: vote.objectionId },
-        include: [{ model: Association, as: "association" }]
+        include: [{ model: HomeOwnerAssociation }]
       }).then(async objection => {
-        await objection.getVotes().then(async votes => {
+        await objection?.getVotes().then(async votes => {
           // User has already voted. Cancel creation
           if (votes.length) {
             return Promise.reject(new DuplicateError("Duplicate entry"));
@@ -54,12 +52,7 @@ export class Vote extends Model {
       });
     });
   }
-
-  public static asscociate(model) {}
 }
-
-import { Association } from "./association";
-import { Objection } from "./objection";
 
 export const VoteSchema = Vote;
 export default VoteSchema;

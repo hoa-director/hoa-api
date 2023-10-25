@@ -1,0 +1,11 @@
+{
+    "tasks": [
+        {
+            "type": "npm",
+            "script": "lint-server",
+            "problemMatcher": ["$eslint-stylish"],
+            "label": "npm: lint",
+            "detail": "tslint -c tslint.json -p tsconfig.server.json"
+        }
+    ]
+}
