@@ -2,9 +2,6 @@
   "extends": [
     "tslint:recommended"
   ],
-  "rulesDirectory": [
-    "node_modules/codelyzer"
-  ],
   "project": "./tsconfig.json",
   "rules": {
     "arrow-return-shorthand": true,

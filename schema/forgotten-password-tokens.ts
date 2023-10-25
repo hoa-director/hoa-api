@@ -1,42 +1,51 @@
-import { DataTypes, Model } from 'sequelize';
-import * as uuid from 'uuid';
+import {
+  DataTypes,
+  HasManyAddAssociationMixin,
+  HasManyCreateAssociationMixin,
+  HasManyGetAssociationsMixin,
+  Model,
+  InferAttributes,
+  InferCreationAttributes,
+  Op,
+  CreationOptional,
+  Sequelize,
+  NonAttribute,
+  ForeignKey,
+} from 'sequelize';
+import { v4 as uuidv4 } from 'uuid';
+import User from './user.js';
 
-export class ForgottenPasswordToken extends Model {
-  id: number;
-  userId: number;
-  token: string;
-  createdAt: Date;
-  updatedAt: Date;
-  deletedAt: Date;
+export class ForgottenPasswordToken extends Model<InferAttributes<ForgottenPasswordToken>, InferCreationAttributes<ForgottenPasswordToken>> {
+  declare userId: ForeignKey<User["id"]>;
+  declare token: string;
+  declare createdAt: CreationOptional<Date>;
+  declare updatedAt: CreationOptional<Date>;
+  declare deletedAt: Date | null;
 
-  public static initialize(sequelize) {
+  public static initialize(sequelize: any) {
     ForgottenPasswordToken.init(
       {
-        id: {
-          type: DataTypes.INTEGER,
-          primaryKey: true,
-          unique: true,
-          autoIncrement: true,
-          field: 'id',
-        },
         userId: {
           type: DataTypes.INTEGER,
-          field: 'user_id',
         },
         token: {
-          type: DataTypes.STRING(100),
-          field: 'token',
-        }
+          type: new DataTypes.STRING(100),
+          allowNull: false
+        },
+        createdAt: DataTypes.DATE,
+        updatedAt: DataTypes.DATE,
+        deletedAt: { 
+          type: DataTypes.DATE, 
+          allowNull: true },
       },
-      { sequelize, tableName: 'forgotten_password_tokens' },
+      { sequelize },
     );
+    
     ForgottenPasswordToken.beforeCreate((forgottenPasswordToken, options) => {
-      const token = uuid();
+      const token = uuidv4();
       forgottenPasswordToken.token = token;
     });
   }
-
-  public static asscociate(model) {}
 }
 
 export const ForgottenPasswordTokenSchema = ForgottenPasswordToken;

@@ -1,5 +1,5 @@
 import { createTransport, Transporter } from "nodemailer";
-import { Emailer } from "../classes/emailer";
+import { Emailer } from "../classes/emailer.js";
 
 export class EmailerFactory {
   static createEmailer(): Emailer {
@@ -11,9 +11,11 @@ export class EmailerFactory {
   }
 
   static getTransporter(): Transporter {
+
+    let smtpPort : string = process.env.SMTP_PORT ?? "";
     return createTransport({
-      host: process.env.SMTP_SERVER,
-      port: parseInt(process.env.SMTP_PORT, 10),
+      host: smtpPort,
+      port: parseInt(smtpPort, 10),
       secure: false, // upgrade later with STARTTLS
       requireTLS: true, // if this is true and secure is false, requires STARTTLS
       auth: {

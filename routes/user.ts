@@ -1,21 +1,23 @@
-require("dotenv").config();
+import 'dotenv/config'
 import { NextFunction, Request, Response, Router } from "express";
 import { urlencoded } from "body-parser";
-import { roles } from "../config/roles";
-import { EmailerFactory } from "../factories/emailer-factory";
-import { Association, ForgottenPasswordToken } from "../schema/schemas";
-import User, { UserSchema } from "../schema/user";
+import { roles } from "../config/roles.js";
+import { EmailerFactory } from "../factories/emailer-factory.js";
+import { Association, ForgottenPasswordToken } from "../schema/schemas.js";
+import User, { UserSchema } from "../schema/user.js";
 
 // import { bugsnagClient } from "../config/bugsnag";
-import Mail = require("nodemailer/lib/mailer");
+// import Mail = require("nodemailer/lib/mailer");
+import Mail from "nodemailer/lib/mailer"
 
 import * as nodemailer from "nodemailer";
 // import { ConsoleReporter } from 'jasmine';
 
-const jwt = require("jsonwebtoken");
+import jwt from "jsonwebtoken";
 
-const checkAuth = require("../middleware/check-auth");
+import checkAuth from "../middleware/check-auth.js";
 
+const secret = process.env.SECRET ?? "";
 export class UserRouter {
   router: Router;
 
@@ -26,7 +28,7 @@ export class UserRouter {
 
   public login(req: Request, res: Response, next: NextFunction) {
     var fetchedUser: User;
-    var initialAssociationId: number;
+    var initialhoaId: number;
     var initialAssociationName: string;
 
     User.findOne({
@@ -50,21 +52,21 @@ export class UserRouter {
         fetchedUser
           .getAvailableAssociations()
           .then((associationsAvailable) => {
-            initialAssociationId = associationsAvailable[0].id;
+            initialhoaId = associationsAvailable[0].id;
             initialAssociationName = associationsAvailable[0].name;
           })
           .then(() => {
             // create the token to send to the client
             const token = jwt.sign(
               { email: fetchedUser.email, userId: fetchedUser.id },
-              process.env.SECRET,
+              secret,
               { expiresIn: "1h" }
             );
             res.status(200).json({
               token: token,
               user: fetchedUser,
               association: {
-                id: initialAssociationId,
+                id: initialhoaId,
                 name: initialAssociationName,
               },
               expiresIn: "3600", // 1h in seconds, sent back to the client
@@ -79,13 +81,13 @@ export class UserRouter {
 
   public getloggedInUser(req: Request, res: Response, next: NextFunction) {
     var fetchedUser: User;
-
+    const byUserId = parseInt(<string>req.query.userId).valueOf();
     User.findOne({
       where: {
-        id: req.query.userId,
+        id: byUserId,
       },
     }).then((user) => {
-      res.status(200).json({ userFirstName: user.firstName });
+      res.status(200).json({ userFirstName: user?.firstName });
     });
   }
 
@@ -103,19 +105,19 @@ export class UserRouter {
   }
 
   private getUserAssociations(req: Request, res: Response, next: NextFunction) {
-    var userId = req.query.userId;
-    console.log("user id get user associations is " + userId);
+    const byUserId = parseInt(<string>req.query.userId).valueOf();
+    console.log("user id get user associations is " + byUserId);
     User.findOne({
       where: {
-        id: userId,
+        id: byUserId,
       },
     }).then((user) => {
       user
-        .getAvailableAssociations()
+        ?.getAvailableAssociations()
         .then((associations) => {
           res.send({
             associations,
-            // currentAssociation: req.session.associationId,
+            // currentAssociation: req.session.hoaId,
           });
         })
         .catch((error) => {
@@ -130,25 +132,26 @@ export class UserRouter {
     res: Response,
     next: NextFunction
   ) {
-    const associationId: number = parseInt(req.body.associationId, 10);
+    const hoaId: number = parseInt(req.body.hoaId, 10);
+    const byUserId = parseInt(<string>req.query.userId).valueOf();
     User.findOne({
       where: {
-        id: req.query.userId,
+        id: byUserId,
       },
     }).then((fetchedUser) => {
       fetchedUser
-        .getAvailableAssociations()
+        ?.getAvailableAssociations()
         .then((associations) => {
           if (
             !associations.some(
-              (association) => association.id === associationId
+              (association) => association.id === hoaId
             )
           ) {
             return res.sendStatus(403);
           }
           res.send({
             associations,
-            currentAssociation: associationId,
+            currentAssociation: hoaId,
           });
         })
         .catch((error) => {
@@ -159,13 +162,16 @@ export class UserRouter {
   }
 
   private forgotten(req: Request, res: Response, next: NextFunction) {
-    const email = req.query.email;
+    const email = <string>req.query.email;
     const domain = process.env.NODE_ENV === "staging" ? process.env.HOA_STAGING_DOMAIN : process.env.HOA_PROD_DOMAIN
+    const byUserId = parseInt(<string>req.query.userId).valueOf();
     User.findOne({
       where: { email },
     })
       .then((user) => {
-        const token = new ForgottenPasswordToken({ userId: user.id });
+        const token = new ForgottenPasswordToken(
+          // { userId: user.id } TODO: fix 
+          );
         return token.save();
       })
       .then((token) => {
@@ -218,10 +224,10 @@ export class UserRouter {
       ],
     })
       .then((user) => {
-        return user.changePassword(password);
+        return user?.changePassword(password);
       })
-      .then((user) => {
-        return user.tokens[0].destroy();
+      .then((user: any) => {
+        return user?.tokens[0].destroy();
       })
       .then(() => {
         res.send({ success: true });

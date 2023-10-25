@@ -1,66 +1,65 @@
-import * as Sequelize from "sequelize";
+import {
+  DataTypes,
+  HasManyAddAssociationMixin,
+  HasManyCreateAssociationMixin,
+  HasManyGetAssociationsMixin,
+  Model,
+  InferAttributes,
+  InferCreationAttributes,
+  Op,
+  CreationOptional,
+  Sequelize,
+  NonAttribute,
+  ForeignKey,
+} from 'sequelize';
+import { HomeOwnerAssociation } from './home-owner-association.js';
 
-export class Document extends Sequelize.Model {
-  id: number;
-  associationId: number;
-  path: string;
-  name: string;
-  createdAt: Date;
-  updatedAt: Date;
-  deletedAt: Date;
+export class Document extends Model<InferAttributes<Document>, InferCreationAttributes<Document>>  {
+  declare id: CreationOptional<number>;
+  declare hoaId: ForeignKey<HomeOwnerAssociation["id"]>;
+  declare path: string;
+  declare name: string;
+  declare createdAt: CreationOptional<Date>;
+  declare updatedAt: CreationOptional<Date>;
+  declare deletedAt: Date | null;
 
-  public static getDocumentsByAssociation(associationId) {
-    return new Promise((resolve, reject) => {
-      Document.findAll({ where: { associationId } })
-        .then((document) => {
-          resolve(document);
-        })
-        .catch((error) => {
-          reject(error);
-        });
-    });
+  public static async getDocumentsByAssociation(hoaId: number): Promise<Document[]> {
+    return await Document.findAll({ where: { hoaId } })
   }
 
-  public static getDocumentByAssociationAndId(associationId, documentId) {
-    return new Promise((resolve, reject) => {
-      Document.findOne({ where: { associationId, id: documentId } })
-        .then((document) => {
-          resolve(document);
-        })
-        .catch((error) => {
-          reject(error);
-        });
-    });
+  public static async getDocumentByAssociationAndId(hoaId: number, documentId: number) {
+    return await Document.findOne({ where: { hoaId, id: documentId } })
   }
 
-  public static initialize(sequelize) {
+  public static initialize(sequelize: any) {
     Document.init(
       {
         id: {
-          type: Sequelize.INTEGER,
+          type: DataTypes.INTEGER,
           primaryKey: true,
           unique: true,
           autoIncrement: true,
-          field: "id",
         },
-        associationId: {
-          type: Sequelize.INTEGER,
-          field: "association_id",
+        hoaId: {
+          type: DataTypes.INTEGER,
         },
         path: {
-          type: Sequelize.STRING(100),
-          field: "path",
+          type: new DataTypes.STRING(100),
+          allowNull: false
         },
         name: {
-          type: Sequelize.STRING(45),
-          field: "name",
-        }
+          type: new DataTypes.STRING(45),
+          allowNull: false
+        },
+        createdAt: DataTypes.DATE,
+        updatedAt: DataTypes.DATE,
+        deletedAt: { 
+          type: DataTypes.DATE, 
+          allowNull: true },
       },
-      { sequelize, tableName: "documents" }
+      { sequelize }
     );
   }
-
-  public static asscociate(model) {}
 }
 
 export const DocumentSchema = Document;

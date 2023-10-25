@@ -1,13 +1,14 @@
-require('dotenv').config();
+import 'dotenv/config';
 import * as http from 'http';
-import { connection } from './config/database';
+import { connection } from './config/database.js';
 
-import App from './app';
+import app from './app.js';
+import exp from 'constants';
 
 const port = normalizePort(process.env.PORT || 3000);
-App.set('port', port);
+app.set('port', port);
 
-const server = http.createServer(App);
+const server = http.createServer(app);
 server.listen(port);
 server.on('listening', onListening);
 
