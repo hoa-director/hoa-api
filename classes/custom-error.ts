@@ -1,8 +1,8 @@
 export class CustomError extends Error {
   date: Date;
   name: string;
-  id: number | undefined;
-  constructor(name: string, id: number | undefined, ...params: any) {
+  id: number;
+  constructor(name: string, id: number | undefined, ...params) {
     // Pass remaining arguments (including vendor specific ones) to parent constructor
     super(...params);
 

@@ -1,7 +1,7 @@
-import { CustomError } from './custom-error.js';
+import { CustomError } from './custom-error';
 
 export class DuplicateError extends CustomError {
-  constructor(...params: string[]) {
+  constructor(...params) {
     super('Duplicate Content Error', 100, ...params);
   }
 }

@@ -1,48 +1,39 @@
-import {
-  DataTypes,
-  HasManyAddAssociationMixin,
-  HasManyCreateAssociationMixin,
-  HasManyGetAssociationsMixin,
-  Model,
-  InferAttributes,
-  InferCreationAttributes,
-  Op,
-  CreationOptional,
-  Sequelize,
-  NonAttribute,
-  ForeignKey,
-} from 'sequelize';
-import bcrypt from "bcrypt";
-import { roles } from "../config/roles.js";
-import { HomeOwnerAssociation } from "./home-owner-association.js";
-import { ForgottenPasswordToken } from "./forgotten-password-tokens.js";
+import * as bcrypt from "bcrypt";
+import * as Bluebird from "bluebird";
+import { DataTypes, HasManyGetAssociationsMixin, Model } from "sequelize";
+import { roles } from "../config/roles";
+import { Association } from "./association";
+import { ForgottenPasswordToken } from "./forgotten-password-tokens";
 
 const saltWorkFactor = 10;
 
-export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
-  declare id: CreationOptional<number>;
-  declare email: string;
-  declare password: string; // TODO: Make private
-  declare phone: number;
-  declare role: number | null;
-  declare firstName: string;
-  declare lastName: string;
-  declare createdAt: CreationOptional<Date>;
-  declare updatedAt: CreationOptional<Date>;
-  declare deletedAt: Date | null
+export class User extends Model {
+  id: number;
+  email: string;
+  private password: string;
+  number: number;
+  role: number;
+  firstName: string;
+  lastName: string;
+  // fullName: string;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date;
 
-  declare getAssociations: HasManyGetAssociationsMixin<HomeOwnerAssociation>;
+  tokens: ForgottenPasswordToken[];
+
+  getAssociations: HasManyGetAssociationsMixin<Association>;
 
   public static encryptPassword(password: string) {
     const salt = bcrypt.genSaltSync(saltWorkFactor);
     return bcrypt.hashSync(password, salt);
   }
 
-  public static findByEmail(email: string): Promise<User | null> {
+  public static findByEmail(email: string): Bluebird<User> {
     return User.findOne({ where: { email } });
   }
 
-  public static initialize(sequelize: any) {
+  public static initialize(sequelize) {
     User.init(
       {
         id: {
@@ -50,45 +41,44 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
           primaryKey: true,
           unique: true,
           autoIncrement: true,
+          field: "id"
         },
         email: {
-          type: new DataTypes.STRING,
+          type: DataTypes.STRING,
           validate: {
             max: 100,
             isEmail: true
           },
           unique: true,
+          field: "email"
         },
         password: {
           type: DataTypes.STRING,
           validate: {
             max: 45
           },
+          field: "password"
         },
-        phone: {
-          type: new DataTypes.STRING(12),
-          allowNull: false
+        number: {
+          type: DataTypes.STRING(12),
+          field: "number"
         },
         role: {
           type: DataTypes.INTEGER,
-          allowNull: true
+          field: "role",
         },
         firstName: {
-          type: new DataTypes.STRING,
-          allowNull: false
+          type: DataTypes.STRING,
+          field: "first_name"
         },
         lastName: {
-          type: new DataTypes.STRING,
-          allowNull: false
-        },
-        createdAt: DataTypes.DATE,
-        updatedAt: DataTypes.DATE,
-        deletedAt: { 
-          type: DataTypes.DATE, 
-          allowNull: true },
+          type: DataTypes.STRING,
+          field: "last_name"
+        }
       },
       { 
-        sequelize
+        sequelize, 
+        tableName: "users" 
       }
     );
     User.beforeCreate((user, options) => {
@@ -98,10 +88,10 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
     });
   }
 
-  public getAvailableAssociations(): Promise<HomeOwnerAssociation[]> {
+  public getAvailableAssociations(): Bluebird<Association[]> {
     const includedAttributes = ["id", "name"];
     if (this.role === roles.ADMIN) {
-      return HomeOwnerAssociation.findAll({
+      return Association.findAll({
         attributes: includedAttributes
       });
     }
@@ -114,15 +104,15 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
     return bcrypt.compareSync(password, this.password);
   }
 
-  public changePassword(password: string) {
+  public changePassword(password) {
     this.password = User.encryptPassword(password);
     return this.save();
   }
 
-  public isInAssociation(hoaId: number): Promise<boolean> {
+  public isInAssociation(associationId): Bluebird<boolean> {
     return this.getAssociations({
       where: {
-        id: hoaId
+        id: associationId
       }
     }).then(associations => {
       return !!associations.length;

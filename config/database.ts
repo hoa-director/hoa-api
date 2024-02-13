@@ -1,8 +1,6 @@
-import dotenv from 'dotenv';
+require("dotenv").config();
 import { Sequelize, Options, OperatorsAliases } from "sequelize";
-
-dotenv.config();
-
+const url = require("url");
 class DatabaseConnection {
   sequelize: Sequelize;
 
@@ -30,7 +28,7 @@ class DatabaseConnection {
       };
 
       this.sequelize = new Sequelize(
-        `${process.env.DATABASE_URL}`,
+        `${process.env.DATABASE_URL}?sslmode=require`,
         connectionOptions
       );
     } else {
@@ -49,8 +47,8 @@ class DatabaseConnection {
         logging: (...msg) => console.log(msg),
       };
       this.sequelize = new Sequelize(
-        process.env.DATABASE_DB as string,
-        process.env.DATABASE_USER as string,
+        process.env.DATABASE_DB,
+        process.env.DATABASE_USER,
         process.env.DATABASE_PASSWORD,
         connectionOptions
       );
@@ -75,7 +73,7 @@ class DatabaseConnection {
     (await process.env.NODE_ENV) === "development" ||
     process.env.NODE_ENV === "staging"
       ? this.sequelize.sync({ alter: true })
-      : this.sequelize.sync({ alter: true });
+      : this.sequelize.sync();
   }
 }
 

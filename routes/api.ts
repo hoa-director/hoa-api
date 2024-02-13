@@ -3,17 +3,17 @@ import { createTransport, Transporter } from "nodemailer";
 import * as fs from "fs";
 import * as path from "path";
 
-import { Emailer } from "../classes/emailer.js";
+import { Emailer } from "../classes/emailer";
 import {
   Association,
   Document,
   Objection,
   User,
   Vote,
-} from "../schema/schemas.js";
-import { Unit } from "../schema/unit.js";
+} from "../schema/schemas";
+import { Unit } from "../schema/unit";
 
-import checkAuth from "../middleware/check-auth.js";"../middleware/check-auth.js";
+const checkAuth = require("../middleware/check-auth");
 
 // import { bugsnagClient } from '../config/bugsnag';
 
@@ -44,9 +44,9 @@ export class ApiRouter {
   }
 
   private getDirectory = (req: Request, res: Response, next: NextFunction) => {
-    const hoaId: any = req.query.hoaId;
-    Association.getDirectoryByhoaId(hoaId)
-      .then((directory: any) => {
+    const associationId: any = req.query.associationId;
+    Association.getDirectoryByAssociationId(associationId)
+      .then((directory) => {
         res.send(directory);
       })
       .catch((error) => {
@@ -54,10 +54,9 @@ export class ApiRouter {
         res.sendStatus(500);
       });
   };
-
   private getRules = (req: Request, res: Response, next: NextFunction) => {
-    const hoaId: any = req.query.hoaId;
-    Association.getRuleListsByhoaId(hoaId)
+    const associationId: any = req.query.associationId;
+    Association.getRuleListsByAssociationId(associationId)
       .then((ruleLists) => {
         res.send(ruleLists);
       })
@@ -67,21 +66,20 @@ export class ApiRouter {
       });
   };
   private fileObjection = (req: Request, res: Response, next: NextFunction) => {
-    const hoaId = parseInt(<string>req.query.hoaId).valueOf()
+    const associationId: any = req.query.associationId;
     const objection = req.body.objection;
-    const byUserId = parseInt(<string>req.query.userId).valueOf();
+    const byUserId = req.query.userId;
     User.findOne({
-      where: { id: byUserId},
+      where: {
+        id: req.query.userId,
+      },
     }).then(fetchedUser => {
-      return Objection.create(
-        // TODO: fix this issue
-      //   {
-      //   hoaId: hoaId,
-      //   comment: objection.comment,
-      //   submittedById: byUserId,
-      //   submittedAgainstId: objection.against,
-      // }
-      )
+      Objection.create({
+        associationId,
+        comment: objection.comment,
+        submittedByUserId: byUserId,
+        submittedAgainstUserId: objection.against,
+      })
         .then((filedObjection) => {
           res.status(200).send({ success: true });
           // TODO: move this to a factory
@@ -95,7 +93,7 @@ export class ApiRouter {
           //   },
           // });
           // const emailer = new Emailer(transporter);
-          // return Association.getUsersByhoaId(<number>hoaId).then(
+          // return Association.getUsersByAssociationId(<number>associationId).then(
           //   (users) => {
           //     const emails = users.map((user) => user.email);
           //     const emailList = emails.join(", ");
@@ -158,10 +156,10 @@ export class ApiRouter {
    * @param {NextFunction} next
    */
   private getObjections = (req: Request, res: Response, next: NextFunction) => {
-    const hoaId: unknown = req.query.hoaId;
-    Association.findByPk(<number>hoaId)
-    .then((association) => {
-      association?.getActiveObjections()
+    const associationId: unknown = req.query.associationId;
+    Association.findByPk(<number>associationId).then((association) => {
+      association
+        .getActiveObjections()
         .then((objections) => {
           res.send({ objections });
         })
@@ -178,10 +176,11 @@ export class ApiRouter {
    * @param {NextFunction} next
    */
   private getInbox = (req: Request, res: Response, next: NextFunction) => {
-    const hoaId: unknown = req.query.hoaId;
+    const associationId: unknown = req.query.associationId;
     const userId: unknown = req.query.userId;
-    Association.findByPk(<number>hoaId).then((association) => {
-      association?.getUserInbox(<number>userId)
+    Association.findByPk(<number>associationId).then((association) => {
+      association
+        .getUserInbox(<number>userId)
         .then((objections) => {
           res.send({ objections });
         })
@@ -198,10 +197,11 @@ export class ApiRouter {
    * @param {NextFunction} next
    */
   private getOutbox = (req: Request, res: Response, next: NextFunction) => {
-    const hoaId: unknown = req.query.hoaId;
+    const associationId: unknown = req.query.associationId;
     const userId: unknown = req.query.userId;
-    Association.findByPk(<number>hoaId).then((association) => {
-      association?.getUserOutbox(<number>userId)
+    Association.findByPk(<number>associationId).then((association) => {
+      association
+        .getUserOutbox(<number>userId)
         .then((objections) => {
           res.send({ objections });
         })
@@ -223,9 +223,10 @@ export class ApiRouter {
     res: Response,
     next: NextFunction
   ) => {
-    const hoaId: unknown = req.query.hoaId;
-    Association.findByPk(<number>hoaId).then((association) => {
-      association?.getPastObjections()
+    const associationId: unknown = req.query.associationId;
+    Association.findByPk(<number>associationId).then((association) => {
+      association
+        .getPastObjections()
         .then((objections) => {
           res.send({ objections });
         })
@@ -243,14 +244,14 @@ export class ApiRouter {
    * @param {NextFunction} next
    */
   private async getObjection(req: Request, res: Response, next: NextFunction) {
-    const hoaId: unknown = req.query.hoaId;
-    const byUserId = parseInt(<string>req.query.userId);
+    const associationId: unknown = req.query.associationId;
+    const userId: unknown = req.query.userId;
     const objectionId: unknown = req.params.id;
     Objection.findByPk(<number>objectionId, {
       // where: {
-      //   hoaId,
+      //   associationId,
       // },
-      attributes: ["comment", "closedAt", "hoaId", "id"],
+      attributes: ["comment", "closedAt", "associationId", "id"],
       include: [
         {
           model: User,
@@ -260,7 +261,7 @@ export class ApiRouter {
             {
               model: Unit,
               as: "units",
-              where: { hoaId },
+              where: { associationId },
               attributes: ["addressLineOne"],
             },
           ],
@@ -273,7 +274,7 @@ export class ApiRouter {
             {
               model: Unit,
               as: "units",
-              where: { hoaId },
+              where: { associationId },
               attributes: ["addressLineOne"],
             },
           ],
@@ -283,13 +284,13 @@ export class ApiRouter {
       .then(async (objection) => {
         const fetchedUser = await User.findOne({
           where: {
-            id: byUserId,
+            id: req.query.userId,
           },
         });
 
-        const canVote = fetchedUser ? await objection?.userCanVote(fetchedUser) : undefined;
+        const canVote = await objection.userCanVote(fetchedUser);
         let results;
-        if (objection?.closedAt) {
+        if (objection.closedAt) {
           results = await objection.getResults();
         }
         res.send({ objection, canVote, results });
@@ -307,8 +308,8 @@ export class ApiRouter {
    * @param {NextFunction} next
    */
   private getUnits(req: Request, res: Response, next: NextFunction) {
-    const hoaId: unknown = req.query.hoaId;
-    Association.findByPk(<number>hoaId, {
+    const associationId: unknown = req.query.associationId;
+    Association.findByPk(<number>associationId, {
       attributes: [],
       include: [
         {
@@ -319,7 +320,7 @@ export class ApiRouter {
       ],
     })
       .then((association) => {
-        res.send({ units: association?.units });
+        res.send({ units: association.units });
       })
       .catch((error) => {
         // bugsnagClient.notify(error);
@@ -328,8 +329,8 @@ export class ApiRouter {
   }
 
   private getDocuments = (req: Request, res: Response, next: NextFunction) => {
-    const hoaId = parseInt(<string>req.query.hoaId);
-    Document.getDocumentsByAssociation(hoaId)
+    const associationId: any = req.query.associationId;
+    Document.getDocumentsByAssociation(associationId)
       .then((documents) => {
         res.send(documents);
       })
@@ -341,9 +342,9 @@ export class ApiRouter {
   };
 
   private viewDocument = (req: Request, res: Response, next: NextFunction) => {
-    const hoaId: number = parseInt(<string>req.query.hoaId);
-    const documentId: number = parseInt(<string>req.params.id);
-    Document.getDocumentByAssociationAndId(hoaId, documentId)
+    const associationId: any = req.query.associationId;
+    const documentId = req.params.id;
+    Document.getDocumentByAssociationAndId(associationId, documentId)
       .then((document: any) => {
         const documentPath = path.join(__dirname, "..", document.path);
         const data = fs.readFileSync(documentPath);
