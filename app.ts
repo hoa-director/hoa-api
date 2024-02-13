@@ -1,21 +1,22 @@
-import bodyParser from 'body-parser';
-import cors from 'cors';
-import express, { Express, NextFunction, Request, Response } from "express";
-import indexRoutes from "./routes/index.js";
-import apiRoutes from "./routes/api.js";
-import userRoutes from "./routes/user.js"
+const bodyParser = require("body-parser");
+var cors = require('cors');
+import * as express from "express";
+import { NextFunction, Request, Response } from "express";
 // import { bugsnagClient } from "./config/bugsnag";
+import indexRoutes from "./routes";
+import apiRoutes from "./routes/api";
+import userRoutes from "./routes/user";
 
-import checkAuth from './middleware/check-auth.js';"./middleware/check-auth.js";
+const checkAuth = require("./middleware/check-auth");
 
 // const bugsnagExpress = bugsnagClient.getPlugin("express");
 
 class App {
-  public express: Express;
+  public express: express.Application;
 
   constructor() {
     this.express = express();
-    this.express.use(cors);
+    this.express.use(cors());
     this.middleware();
     this.routes();
     this.errorHandlers();
@@ -51,5 +52,4 @@ class App {
   }
 }
 
-const app = new App().express;
-export default app;
+export default new App().express;

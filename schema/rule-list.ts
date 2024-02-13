@@ -1,57 +1,42 @@
-import {
-  DataTypes,
-  HasManyAddAssociationMixin,
-  HasManyCreateAssociationMixin,
-  HasManyGetAssociationsMixin,
-  Model,
-  InferAttributes,
-  InferCreationAttributes,
-  Op,
-  CreationOptional,
-  Sequelize,
-  ForeignKey,
-} from 'sequelize';
-import { HomeOwnerAssociation } from './home-owner-association.js';
+import * as Sequelize from 'sequelize';
 
-export class RuleList extends Model<InferAttributes<RuleList>,
-InferCreationAttributes<RuleList>> {
-  declare id: CreationOptional<number>;
-  declare hoaId: ForeignKey<HomeOwnerAssociation["id"]>;
-  declare title: string;
-  declare description: string;
-  declare createdAt: CreationOptional<Date>;
-  declare updatedAt: CreationOptional<Date>;
-  declare deletedAt: Date | null
+export class RuleList extends Sequelize.Model {
+  id: number;
+  associationId: number;
+  title: string;
+  description: string;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date;
 
-  public static initialize(sequelize: any) {
+  public static initialize(sequelize) {
     RuleList.init(
       {
         id: {
-          type: DataTypes.INTEGER,
+          type: Sequelize.INTEGER,
           primaryKey: true,
           unique: true,
           autoIncrement: true,
+          field: 'id',
         },
-        hoaId: {
-          type: DataTypes.INTEGER,
+        associationId: {
+          type: Sequelize.INTEGER,
+          field: 'association_id',
         },
         title: {
-          type: new DataTypes.STRING(100),
-          allowNull: false
+          type: Sequelize.STRING(100),
+          field: 'title',
         },
         description: {
-          type: new DataTypes.STRING(1000),
-          allowNull: false
+          type: Sequelize.STRING(1000),
+          field: 'description',
         },
-        createdAt: DataTypes.DATE,
-        updatedAt: DataTypes.DATE,
-        deletedAt: { 
-          type: DataTypes.DATE, 
-          allowNull: true },
       },
-      { sequelize },
+      { sequelize, tableName: 'rule_lists' },
     );
   }
+
+  public static asscociate(model) {}
 }
 
 export const RuleListSchema = RuleList;

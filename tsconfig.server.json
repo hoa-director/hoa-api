@@ -1,8 +1,15 @@
 {
     "extends": "./tsconfig.json",
     "compilerOptions": {
+        "target": "es6",
+        "module": "commonjs",
+        "outDir": "./dist",
+        "baseUrl": "src",
         "paths": {
-            "schemas": ["./schema/schemas"]
+            "schemas": ["schema/schemas"]
         }
-    }
+    },
+    "include": [
+        "./**/*.ts"
+    ],
 }

@@ -1,55 +1,37 @@
-import {
-  DataTypes,
-  HasManyAddAssociationMixin,
-  HasManyCreateAssociationMixin,
-  HasManyGetAssociationsMixin,
-  Model,
-  InferAttributes,
-  InferCreationAttributes,
-  Op,
-  CreationOptional,
-  Sequelize,
-  ForeignKey,
-} from "sequelize";
-import { RuleList } from "./rule-list.js";
-import { CreateContextOptions } from "vm";
+import * as Sequelize from 'sequelize';
 
-export class Rule extends Model<
-  InferAttributes<Rule>,
-  InferCreationAttributes<Rule>
-> {
-  declare id: CreationOptional<number>;
-  declare ruleListId: ForeignKey<RuleList["id"]>;
-  declare description: string;
-  declare createdAt: CreationOptional<Date>;
-  declare updatedAt: CreationOptional<Date>;
-  declare deletedAt: Date | null;
+export class Rule extends Sequelize.Model {
+  id: number;
+  ruleListId: number;
+  description: string;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date;
 
-  public static initialize(sequelize: any) {
+  public static initialize(sequelize) {
     Rule.init(
       {
         id: {
-          type: DataTypes.INTEGER,
+          type: Sequelize.INTEGER,
           primaryKey: true,
           unique: true,
           autoIncrement: true,
+          field: 'id',
         },
         ruleListId: {
-          type: DataTypes.INTEGER,
+          type: Sequelize.INTEGER,
+          field: 'rule_list_id',
         },
         description: {
-          type: new DataTypes.STRING(500),
-          allowNull: false,
+          type: Sequelize.STRING(500),
+          field: 'description',
         },
-        createdAt: DataTypes.DATE,
-        updatedAt: DataTypes.DATE,
-        deletedAt: { 
-          type: DataTypes.DATE, 
-          allowNull: true },
       },
-      { sequelize }
+      { sequelize, tableName: 'rules' },
     );
   }
+
+  public static asscociate(model) {}
 }
 
 export const RuleSchema = Rule;

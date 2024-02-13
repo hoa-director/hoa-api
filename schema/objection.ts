@@ -1,51 +1,43 @@
+import * as Bluebird from 'bluebird';
 import {
-  DataTypes,
-  HasManyAddAssociationMixin,
-  HasManyCreateAssociationMixin,
-  HasManyGetAssociationsMixin,
-  Model,
-  InferAttributes,
-  InferCreationAttributes,
-  Op,
-  CreationOptional,
-  Sequelize,
-  NonAttribute,
-  ForeignKey,
+  BelongsToCreateAssociationMixin,
   BelongsToGetAssociationMixin,
   BelongsToSetAssociationMixin,
-  BelongsToCreateAssociationMixin,
+  DataTypes,
+  HasManyGetAssociationsMixin,
+  Model,
 } from 'sequelize';
-import { HomeOwnerAssociation } from './home-owner-association.js';
-import { User } from './user.js';
-import { Vote } from './vote.js';
+import { Association } from './association';
+import { User } from './user';
+import { Vote } from './vote';
 
-export class Objection extends Model<InferAttributes<Objection>, InferCreationAttributes<Objection>> {
-  declare id: CreationOptional<number>;
-  declare hoaId: ForeignKey<HomeOwnerAssociation["id"]>;;
-  declare comment: string;
-  // declare submittedBy: number;
-  // declare submittedAgainst: number;
-  declare createdAt: CreationOptional<Date>;
-  declare updatedAt: CreationOptional<Date>;
-  declare deletedAt: Date | null;
-  declare closedAt: Date | null;
+export class Objection extends Model {
+  id: number;
+  associationId: number;
+  comment: string;
+  // submittedBy: number;
+  // submittedAgainst: number;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date;
+  closedAt: Date;
 
   // mixins for association (optional)
-  declare submittedById: number;
-  declare submittedBy: User;
-  declare getSubmittedBy: BelongsToGetAssociationMixin<User>;
-  declare setSubmittedBy: BelongsToSetAssociationMixin<User, number>;
-  declare createSubmittedBy: BelongsToCreateAssociationMixin<User>;
+  submittedById: number;
+  submittedBy: User;
+  getSubmittedBy: BelongsToGetAssociationMixin<User>;
+  setSubmittedBy: BelongsToSetAssociationMixin<User, number>;
+  createSubmittedBy: BelongsToCreateAssociationMixin<User>;
 
-  declare submittedAgainstId: number;
-  declare submittedAgainst: User;
-  declare getSubmittedAgainst: BelongsToGetAssociationMixin<User>;
-  declare setSubmittedAgainst: BelongsToSetAssociationMixin<User, number>;
-  declare createSubmittedAgainst: BelongsToCreateAssociationMixin<User>;
+  submittedAgainstId: number;
+  submittedAgainst: User;
+  getSubmittedAgainst: BelongsToGetAssociationMixin<User>;
+  setSubmittedAgainst: BelongsToSetAssociationMixin<User, number>;
+  createSubmittedAgainst: BelongsToCreateAssociationMixin<User>;
 
-  declare getVotes: HasManyGetAssociationsMixin<Vote>;
+  getVotes: HasManyGetAssociationsMixin<Vote>;
 
-  public static initialize(sequelize: any) {
+  public static initialize(sequelize) {
     Objection.init(
       {
         id: {
@@ -53,50 +45,49 @@ export class Objection extends Model<InferAttributes<Objection>, InferCreationAt
           primaryKey: true,
           unique: true,
           autoIncrement: true,
+          field: 'id',
         },
-        hoaId: {
+        associationId: {
           type: DataTypes.INTEGER,
+          field: 'association_id',
         },
         comment: {
-          type: new DataTypes.STRING(500),
-          allowNull: false
+          type: DataTypes.STRING(500),
+          field: 'comment',
         },
-        submittedById: {
+        submittedByUserId: {
           type: DataTypes.INTEGER,
+          field: 'submitted_by_user_id',
         },
-        submittedAgainstId: {
+        submittedAgainstUserId: {
           type: DataTypes.INTEGER,
+          field: 'submitted_against_user_id',
         },
         closedAt: {
           type: DataTypes.DATE,
-        },
-        submittedBy: '',
-        submittedAgainst: '',
-        createdAt: DataTypes.DATE,
-        updatedAt: DataTypes.DATE,
-        deletedAt: { 
-          type: DataTypes.DATE, 
-          allowNull: true },
+          field: 'closed_at',
+        }
       },
-      { sequelize },
+      { sequelize, tableName: 'objections' },
     );
   }
 
-  public static async getOpenByhoaId(hoaId: number): Promise<Objection[]> {
-    // TODO: Is this needed?
-    const association = await HomeOwnerAssociation.findByPk(hoaId);
-    
-    return await Objection.findAll({
+  public static asscociate(model) {}
+
+  public static getOpenByAssociationId(associationId): Bluebird<Objection[]> {
+    return Association.findByPk(associationId).then((association) => {
+      return Objection.findAll({
         where: {
-          hoaId,
+          associationId,
         },
       }).then((objections) => {
         console.log(objections);
         return objections;
       });
+    });
   }
 
-  public hasUserVoted(userId: number) {
+  public hasUserVoted(userId) {
     this.getVotes({ where: { userId } }).then((votes) => {
       console.log(votes);
     });
@@ -121,11 +112,11 @@ export class Objection extends Model<InferAttributes<Objection>, InferCreationAt
     });
   }
 
-  public userCanVote(user: User): Promise<boolean> {
+  public userCanVote(user: User): Bluebird<boolean> {
     console.log(this);
     // If the objection is closed then it can no longer be voted on
     if (this.closedAt) {
-      return Promise.resolve(false);
+      return Bluebird.resolve(false);
     }
     return this.getVotes({
       where: {
@@ -140,7 +131,7 @@ export class Objection extends Model<InferAttributes<Objection>, InferCreationAt
           return false;
         }
 
-        return user.isInAssociation(+this.hoaId);
+        return user.isInAssociation(this.associationId);
       });
   }
 }

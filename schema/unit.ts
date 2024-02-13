@@ -1,86 +1,71 @@
-import {
-  DataTypes,
-  HasManyAddAssociationMixin,
-  HasManyCreateAssociationMixin,
-  HasManyGetAssociationsMixin,
-  Model,
-  InferAttributes,
-  InferCreationAttributes,
-  Op,
-  CreationOptional,
-  Sequelize,
-  NonAttribute,
-  ForeignKey,
-} from 'sequelize';
-import User from './user.js';
-import { HomeOwnerAssociation } from './home-owner-association.js';
+import * as Sequelize from 'sequelize';
+import User from './user';
 
-export class Unit extends Model<InferAttributes<Unit>, InferCreationAttributes<Unit>> {
-  declare id: CreationOptional<number>;
-  declare userId: ForeignKey<User["id"]>;
-  declare hoaId: ForeignKey<HomeOwnerAssociation["id"]>;
-  declare addressLineOne: string;
-  declare addressLineTwo: string | null;
-  declare city: string;
-  declare state: string;
-  declare zip: number;
-  declare createdAt: CreationOptional<Date>;
-  declare updatedAt: CreationOptional<Date>;
-  declare deletedAt: Date | null
-  user: any;
+export class Unit extends Sequelize.Model {
+  id: number;
+  userId: number;
+  associationId: number;
+  addressLineOne: string;
+  addressLineTwo: string;
+  city: string;
+  state: string;
+  zip: number;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date;
 
-  public static initialize(sequelize: any) {
+  user: User;
+
+  public static initialize(sequelize) {
     Unit.init(
       {
         id: {
-          type: DataTypes.INTEGER,
+          type: Sequelize.INTEGER,
           primaryKey: true,
           unique: true,
           autoIncrement: true,
+          field: 'id',
         },
         userId: {
-          type: DataTypes.INTEGER,
+          type: Sequelize.INTEGER,
+          field: 'user_id',
         },
-        hoaId: {
-          type: DataTypes.INTEGER,
+        associationId: {
+          type: Sequelize.INTEGER,
+          field: 'association_id',
         },
         addressLineOne: {
-          type: new DataTypes.STRING(100),
-          allowNull: false
+          type: Sequelize.STRING(100),
+          field: 'address_line_one',
         },
         addressLineTwo: {
-          type: new DataTypes.STRING(100),
-          allowNull: true
+          type: Sequelize.STRING(100),
+          field: 'address_line_two',
         },
         city: {
-          type: new DataTypes.STRING(60),
-          allowNull: false
+          type: Sequelize.STRING(60),
+          field: 'city',
         },
         state: {
-          type: new DataTypes.STRING(45),
-          allowNull: false
+          type: Sequelize.STRING(45),
+          field: 'state',
         },
         zip: {
-          type: DataTypes.INTEGER,
-          allowNull: false
+          type: Sequelize.INTEGER,
+          field: 'zip',
         },
-        createdAt: DataTypes.DATE,
-        updatedAt: DataTypes.DATE,
-        deletedAt: {
-          type: DataTypes.DATE,
-          allowNull: true
-        },
-        user: ''
       },
-      { sequelize },
+      { sequelize, tableName: 'units' },
     );
   }
 
-  public static getUsersUnit(userId: number, hoaId: number) {
+  public static asscociate(model) {}
+
+  public static getUsersUnit(userId: number, associationId: number) {
     return this.findOne({
       where: {
         userId,
-        hoaId,
+        associationId,
       },
     });
   }
